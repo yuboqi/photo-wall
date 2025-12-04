@@ -371,6 +371,9 @@ function applyBackgroundColor(color) {
  * 切换左侧面板的显示/隐藏
  */
 function togglePanel() {
+    // 检测是否是移动端（竖向布局）
+    const isMobile = window.innerWidth <= 480;
+    
     // 切换前，将所有照片的位置转换为百分比
     const photos = photoWall.querySelectorAll('.polaroid');
     const wallWidth = photoWall.offsetWidth;

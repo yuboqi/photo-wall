@@ -1934,24 +1934,51 @@ body {
 }
 
 @media (max-width: 480px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+    
     .left-panel {
-        flex: 0 0 100vw;
-        width: 100vw;
+        flex: 0 0 auto;
+        width: 100%;
+        max-height: 60vh;
+        overflow-y: auto;
         border-radius: 0;
+        border-right: none;
+        border-bottom: 3px solid rgba(255, 182, 193, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .left-panel.collapsed {
-        margin-left: -100vw;
+        margin-left: 0;
+        margin-top: -60vh;
+        max-height: 60vh;
     }
     
     .toggle-panel-btn {
-        left: 100vw;
+        left: 50%;
+        top: auto;
+        bottom: calc(40vh - 30px);
+        transform: translateX(-50%) rotate(90deg);
         width: 36px;
         height: 60px;
+        border-radius: 0 20px 20px 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .toggle-panel-btn.collapsed {
-        left: 0;
+        left: 50%;
+        top: 0;
+        bottom: auto;
+        transform: translateX(-50%) rotate(90deg);
+    }
+    
+    .photo-wall {
+        flex: 1;
+        min-height: 40vh;
+        height: auto;
     }
     
     .instax-camera {
