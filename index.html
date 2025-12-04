@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎀 可爱拍立得照片墙</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="sparkles"></div>
+    
+    <!-- 折叠按钮 -->
+    <button class="toggle-panel-btn" id="togglePanel" title="展开/折叠控制面板">
+        <span class="toggle-icon">📷</span>
+        <span class="toggle-arrow">◀</span>
+    </button>
+    
+    <div class="container fullscreen">
+        <!-- 左侧拍照上传区域 -->
+        <div class="left-panel" id="leftPanel">
+            <h1>
+                <span class="title-icon">📸</span>
+                <span class="title-text">可爱拍立得</span>
+                <span class="title-stars">✨</span>
+            </h1>
+            
+            <!-- 富士Instax Mini风格拍立得相机 -->
+            <div class="camera-section">
+                <div class="instax-camera">
+                    <!-- 相机顶部圆角 -->
+                    <div class="instax-top">
+                        <!-- 闪光灯 -->
+                        <div class="instax-flash">
+                            <div class="flash-window"></div>
+                        </div>
+                        <!-- 快门按钮 -->
+                        <div class="instax-shutter-area">
+                            <div class="instax-shutter-btn" id="shutterBtn">
+                                <div class="shutter-inner"></div>
+                            </div>
+                        </div>
+                        <!-- 曝光调节 -->
+                        <div class="instax-exposure">
+                            <div class="exposure-dial"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 相机主体 -->
+                    <div class="instax-body">
+                        <!-- 镜头区域 -->
+                        <div class="instax-lens-section">
+                            <div class="instax-lens">
+                                <div class="lens-outer">
+                                    <div class="lens-middle">
+                                        <div class="lens-inner">
+                                            <!-- 取景器/视频 -->
+                                            <div class="viewfinder-screen">
+                                                <video id="video" autoplay playsinline></video>
+                                                <canvas id="canvas" style="display: none;"></canvas>
+                                                <div id="preview" class="preview-container" style="display: none;">
+                                                    <img id="previewImg" alt="预览">
+                                                </div>
+                                                <div id="cameraPlaceholder" class="camera-placeholder">
+                                                    <div class="placeholder-icon">📷</div>
+                                                    <div class="placeholder-text">点击开启相机</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 自拍镜 -->
+                            <div class="instax-selfie-mirror">
+                                <div class="mirror-inner"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 品牌标识 -->
+                        <div class="instax-brand">
+                            <span class="brand-text">instax</span>
+                            <span class="brand-mini">mini</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 相机底部（照片出口） -->
+                    <div class="instax-bottom">
+                        <div class="photo-output">
+                            <div class="output-slot"></div>
+                        </div>
+                        <!-- 计数器窗口 -->
+                        <div class="instax-counter">
+                            <span id="photoCount">10</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 可爱装饰贴纸 -->
+                    <div class="camera-sticker sticker-star">⭐</div>
+                    <div class="camera-sticker sticker-heart">💖</div>
+                    <div class="camera-sticker sticker-flower">🌸</div>
+                </div>
+                
+                <!-- 控制按钮 -->
+                <div class="camera-controls">
+                    <button id="startCamera" class="btn btn-camera">
+                        <span class="btn-icon">📷</span>
+                        <span>打开相机</span>
+                    </button>
+                    <button id="capture" class="btn btn-capture" style="display: none;">
+                        <span class="btn-icon">📸</span>
+                        <span>咔嚓！</span>
+                    </button>
+                    <button id="stopCamera" class="btn btn-stop" style="display: none;">
+                        <span class="btn-icon">⏹️</span>
+                        <span>关闭</span>
+                    </button>
+                </div>
+                
+                <!-- 镜像选项 -->
+                <div class="mirror-option">
+                    <label class="mirror-checkbox">
+                        <input type="checkbox" id="mirrorToggle" checked>
+                        <span class="checkbox-custom"></span>
+                        <span class="mirror-label">🪞 镜像翻转（自拍模式）</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 上传照片区域 -->
+            <div class="upload-section">
+                <div class="section-title">
+                    <span>🎁</span> 或者上传照片
+                </div>
+                <label for="fileInput" class="upload-btn">
+                    <span class="upload-icon">📁</span>
+                    <span>选择照片（可多选）</span>
+                    <span class="upload-sparkle">✨</span>
+                </label>
+                <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+            </div>
+
+            <!-- 相纸样式选择 -->
+            <div class="frame-selection">
+                <div class="section-title">
+                    <span>🎨</span> 选择可爱相纸
+                </div>
+                <div class="frame-options">
+                    <div class="frame-option active" data-frame="bear">
+                        <div class="frame-preview frame-bear">
+                            <span>🧸</span>
+                        </div>
+                        <span class="frame-name">小熊熊</span>
+                    </div>
+                    <div class="frame-option" data-frame="rainbow">
+                        <div class="frame-preview frame-rainbow">
+                            <span>🌈</span>
+                        </div>
+                        <span class="frame-name">彩虹糖</span>
+                    </div>
+                    <div class="frame-option" data-frame="flower">
+                        <div class="frame-preview frame-flower">
+                            <span>🌸</span>
+                        </div>
+                        <span class="frame-name">樱花粉</span>
+                    </div>
+                    <div class="frame-option" data-frame="ocean">
+                        <div class="frame-preview frame-ocean">
+                            <span>🐚</span>
+                        </div>
+                        <span class="frame-name">海洋蓝</span>
+                    </div>
+                    <div class="frame-option" data-frame="candy">
+                        <div class="frame-preview frame-candy">
+                            <span>🍬</span>
+                        </div>
+                        <span class="frame-name">糖果屋</span>
+                    </div>
+                    <div class="frame-option" data-frame="lavender">
+                        <div class="frame-preview frame-lavender">
+                            <span>💜</span>
+                        </div>
+                        <span class="frame-name">薰衣草</span>
+                    </div>
+                    <div class="frame-option" data-frame="lemon">
+                        <div class="frame-preview frame-lemon">
+                            <span>🍋</span>
+                        </div>
+                        <span class="frame-name">柠檬黄</span>
+                    </div>
+                    <div class="frame-option" data-frame="mint">
+                        <div class="frame-preview frame-mint">
+                            <span>🍃</span>
+                        </div>
+                        <span class="frame-name">薄荷绿</span>
+                    </div>
+                    <div class="frame-option" data-frame="custom">
+                        <div class="frame-preview frame-custom">
+                            <span>➕</span>
+                        </div>
+                        <span class="frame-name">自定义</span>
+                    </div>
+                    <div class="frame-option" data-frame="solid-color">
+                        <div class="frame-preview frame-solid-color">
+                            <span>🎨</span>
+                        </div>
+                        <span class="frame-name">纯色</span>
+                    </div>
+                </div>
+                <input type="file" id="customFrameInput" accept="image/*" style="display: none;">
+                
+                <!-- 相纸颜色选择器 -->
+                <div class="color-picker-section frame-color-picker" style="display: none;">
+                    <div class="color-picker-title">选择相纸颜色</div>
+                    <div class="color-preset-colors">
+                        <div class="color-preset" data-color="#FFFFFF" style="background: #FFFFFF;" title="纯白"></div>
+                        <div class="color-preset" data-color="#FFF5F5" style="background: #FFF5F5;" title="淡粉"></div>
+                        <div class="color-preset" data-color="#FFE4E1" style="background: #FFE4E1;" title="玫瑰粉"></div>
+                        <div class="color-preset" data-color="#FFFACD" style="background: #FFFACD;" title="柠檬黄"></div>
+                        <div class="color-preset" data-color="#E0FFFF" style="background: #E0FFFF;" title="淡青"></div>
+                        <div class="color-preset" data-color="#E6E6FA" style="background: #E6E6FA;" title="薰衣草"></div>
+                        <div class="color-preset" data-color="#F0FFF0" style="background: #F0FFF0;" title="蜜瓜绿"></div>
+                        <div class="color-preset" data-color="#FFF0F5" style="background: #FFF0F5;" title="淡紫红"></div>
+                        <div class="color-preset" data-color="#F5F5DC" style="background: #F5F5DC;" title="米色"></div>
+                        <div class="color-preset" data-color="#FFB6C1" style="background: #FFB6C1;" title="浅粉红"></div>
+                        <div class="color-preset" data-color="#87CEEB" style="background: #87CEEB;" title="天空蓝"></div>
+                        <div class="color-preset" data-color="#98FB98" style="background: #98FB98;" title="淡绿"></div>
+                    </div>
+                    <div class="color-picker-row">
+                        <input type="color" id="frameColorPicker" value="#FFFFFF">
+                        <span class="color-value" id="frameColorValue">#FFFFFF</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 背景选择 -->
+            <div class="background-selection">
+                <div class="section-title">
+                    <span>🖼️</span> 选择照片墙背景
+                </div>
+                <div class="bg-options">
+                    <div class="bg-option active" data-bg="starry">
+                        <div class="bg-preview bg-starry">
+                            <span>🌙</span>
+                        </div>
+                        <span class="bg-name">星空梦</span>
+                    </div>
+                    <div class="bg-option" data-bg="cloud">
+                        <div class="bg-preview bg-cloud">
+                            <span>☁️</span>
+                        </div>
+                        <span class="bg-name">云朵棉</span>
+                    </div>
+                    <div class="bg-option" data-bg="meadow">
+                        <div class="bg-preview bg-meadow">
+                            <span>🌿</span>
+                        </div>
+                        <span class="bg-name">草地绿</span>
+                    </div>
+                    <div class="bg-option" data-bg="sunset">
+                        <div class="bg-preview bg-sunset">
+                            <span>🌅</span>
+                        </div>
+                        <span class="bg-name">晚霞橙</span>
+                    </div>
+                    <div class="bg-option" data-bg="aurora">
+                        <div class="bg-preview bg-aurora">
+                            <span>🌌</span>
+                        </div>
+                        <span class="bg-name">极光紫</span>
+                    </div>
+                    <div class="bg-option" data-bg="beach">
+                        <div class="bg-preview bg-beach">
+                            <span>🏖️</span>
+                        </div>
+                        <span class="bg-name">沙滩海</span>
+                    </div>
+                    <div class="bg-option" data-bg="forest">
+                        <div class="bg-preview bg-forest">
+                            <span>🌲</span>
+                        </div>
+                        <span class="bg-name">森林绿</span>
+                    </div>
+                    <div class="bg-option" data-bg="cherry">
+                        <div class="bg-preview bg-cherry">
+                            <span>🌸</span>
+                        </div>
+                        <span class="bg-name">樱花季</span>
+                    </div>
+                    <div class="bg-option" data-bg="custom">
+                        <div class="bg-preview bg-custom-upload">
+                            <span>➕</span>
+                        </div>
+                        <span class="bg-name">自定义</span>
+                    </div>
+                    <div class="bg-option" data-bg="solid-color">
+                        <div class="bg-preview bg-solid-color">
+                            <span>🎨</span>
+                        </div>
+                        <span class="bg-name">纯色</span>
+                    </div>
+                </div>
+                <input type="file" id="customBgInput" accept="image/*" style="display: none;">
+                
+                <!-- 照片墙颜色选择器 -->
+                <div class="color-picker-section bg-color-picker" style="display: none;">
+                    <div class="color-picker-title">选择照片墙颜色</div>
+                    <div class="color-preset-colors">
+                        <div class="color-preset" data-color="#FFF5F5" style="background: #FFF5F5;" title="淡粉"></div>
+                        <div class="color-preset" data-color="#F0F8FF" style="background: #F0F8FF;" title="爱丽丝蓝"></div>
+                        <div class="color-preset" data-color="#FFF8DC" style="background: #FFF8DC;" title="玉米丝"></div>
+                        <div class="color-preset" data-color="#F5FFFA" style="background: #F5FFFA;" title="薄荷奶油"></div>
+                        <div class="color-preset" data-color="#FDF5E6" style="background: #FDF5E6;" title="旧蕾丝"></div>
+                        <div class="color-preset" data-color="#E6E6FA" style="background: #E6E6FA;" title="薰衣草"></div>
+                        <div class="color-preset" data-color="#FFEFD5" style="background: #FFEFD5;" title="番木瓜"></div>
+                        <div class="color-preset" data-color="#FFE4E1" style="background: #FFE4E1;" title="薄雾玫瑰"></div>
+                        <div class="color-preset" data-color="#2C3E50" style="background: #2C3E50;" title="深蓝灰"></div>
+                        <div class="color-preset" data-color="#34495E" style="background: #34495E;" title="湿沥青"></div>
+                        <div class="color-preset" data-color="#1A1A2E" style="background: #1A1A2E;" title="深夜蓝"></div>
+                        <div class="color-preset" data-color="#16213E" style="background: #16213E;" title="海军蓝"></div>
+                    </div>
+                    <div class="color-picker-row">
+                        <input type="color" id="bgColorPicker" value="#FFF5F5">
+                        <span class="color-value" id="bgColorValue">#FFF5F5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 排版模板选择 -->
+            <div class="layout-selection">
+                <div class="section-title">
+                    <span>📐</span> 相纸排版模板
+                </div>
+                <div class="layout-options">
+                    <div class="layout-option" data-layout="grid">
+                        <div class="layout-preview layout-grid">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">网格排列</span>
+                    </div>
+                    <div class="layout-option" data-layout="row">
+                        <div class="layout-preview layout-row">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">横向排列</span>
+                    </div>
+                    <div class="layout-option" data-layout="column">
+                        <div class="layout-preview layout-column">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">纵向排列</span>
+                    </div>
+                    <div class="layout-option" data-layout="diagonal">
+                        <div class="layout-preview layout-diagonal">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">对角线</span>
+                    </div>
+                    <div class="layout-option" data-layout="circle">
+                        <div class="layout-preview layout-circle">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">环形排列</span>
+                    </div>
+                    <div class="layout-option" data-layout="scatter">
+                        <div class="layout-preview layout-scatter">
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                            <div class="layout-dot"></div>
+                        </div>
+                        <span class="layout-name">随机散落</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧照片墙区域 -->
+        <div class="right-panel">
+            <div class="photo-wall-header">
+                <h2>
+                    <span>🖼️</span>
+                    <span>我的照片墙</span>
+                    <span>💕</span>
+                </h2>
+                <div class="header-buttons">
+                    <button id="saveWall" class="btn btn-save">
+                        <span class="btn-icon">💾</span>
+                        <span>保存照片墙</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="operation-tips">
+                <span>💡 提示：拖动照片移动位置，双指/滚轮旋转照片</span>
+            </div>
+            
+            <div id="photoWall" class="photo-wall bg-starry-wall">
+                <!-- 背景装饰元素 -->
+                <div class="wall-decoration">
+                    <div class="deco-star deco-1">⭐</div>
+                    <div class="deco-star deco-2">✨</div>
+                    <div class="deco-star deco-3">🌟</div>
+                    <div class="deco-star deco-4">💫</div>
+                    <div class="deco-moon">🌙</div>
+                </div>
+                
+                <div class="empty-state">
+                    <div class="empty-icon">📷</div>
+                    <p class="empty-text">开始拍照或上传照片吧！</p>
+                    <p class="empty-hint">照片会变成可爱的拍立得 ✨</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 相纸样式选择弹窗 -->
+    <div id="frameModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🎨 更换相纸样式</h3>
+                <button class="modal-close" id="closeFrameModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-frame-options">
+                    <div class="modal-frame-option" data-frame="bear">
+                        <div class="modal-frame-preview frame-bear">🧸</div>
+                        <span>小熊熊</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="rainbow">
+                        <div class="modal-frame-preview frame-rainbow">🌈</div>
+                        <span>彩虹糖</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="flower">
+                        <div class="modal-frame-preview frame-flower">🌸</div>
+                        <span>樱花粉</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="ocean">
+                        <div class="modal-frame-preview frame-ocean">🐚</div>
+                        <span>海洋蓝</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="candy">
+                        <div class="modal-frame-preview frame-candy">🍬</div>
+                        <span>糖果屋</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="lavender">
+                        <div class="modal-frame-preview frame-lavender">💜</div>
+                        <span>薰衣草</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="lemon">
+                        <div class="modal-frame-preview frame-lemon">🍋</div>
+                        <span>柠檬黄</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="mint">
+                        <div class="modal-frame-preview frame-mint">🍃</div>
+                        <span>薄荷绿</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="custom-modal">
+                        <div class="modal-frame-preview frame-custom">➕</div>
+                        <span>上传自定义</span>
+                    </div>
+                    <div class="modal-frame-option" data-frame="solid-color-modal">
+                        <div class="modal-frame-preview frame-solid-color">🎨</div>
+                        <span>纯色</span>
+                    </div>
+                </div>
+                
+                <!-- 弹窗内颜色选择器 -->
+                <div class="modal-color-picker" id="modalColorPicker" style="display: none;">
+                    <div class="color-picker-title">选择相纸颜色</div>
+                    <div class="color-preset-colors">
+                        <div class="color-preset modal-color-preset" data-color="#FFFFFF" style="background: #FFFFFF;" title="纯白"></div>
+                        <div class="color-preset modal-color-preset" data-color="#FFF5F5" style="background: #FFF5F5;" title="淡粉"></div>
+                        <div class="color-preset modal-color-preset" data-color="#FFE4E1" style="background: #FFE4E1;" title="玫瑰粉"></div>
+                        <div class="color-preset modal-color-preset" data-color="#FFFACD" style="background: #FFFACD;" title="柠檬黄"></div>
+                        <div class="color-preset modal-color-preset" data-color="#E0FFFF" style="background: #E0FFFF;" title="淡青"></div>
+                        <div class="color-preset modal-color-preset" data-color="#E6E6FA" style="background: #E6E6FA;" title="薰衣草"></div>
+                        <div class="color-preset modal-color-preset" data-color="#F0FFF0" style="background: #F0FFF0;" title="蜜瓜绿"></div>
+                        <div class="color-preset modal-color-preset" data-color="#FFF0F5" style="background: #FFF0F5;" title="淡紫红"></div>
+                        <div class="color-preset modal-color-preset" data-color="#F5F5DC" style="background: #F5F5DC;" title="米色"></div>
+                        <div class="color-preset modal-color-preset" data-color="#FFB6C1" style="background: #FFB6C1;" title="浅粉红"></div>
+                        <div class="color-preset modal-color-preset" data-color="#87CEEB" style="background: #87CEEB;" title="天空蓝"></div>
+                        <div class="color-preset modal-color-preset" data-color="#98FB98" style="background: #98FB98;" title="淡绿"></div>
+                    </div>
+                    <div class="color-picker-row">
+                        <input type="color" id="modalFrameColorPicker" value="#FFFFFF">
+                        <span class="color-value" id="modalFrameColorValue">#FFFFFF</span>
+                        <button class="apply-color-btn" id="applyModalColor">应用</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="file" id="modalCustomFrameInput" accept="image/*" style="display: none;">
+    
+    <!-- 图片裁剪弹窗 -->
+    <div id="cropModal" class="modal" style="display: none;">
+        <div class="modal-content crop-modal-content">
+            <div class="modal-header">
+                <h3>✂️ 选择图片区域</h3>
+                <button class="modal-close" id="closeCropModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="crop-container">
+                    <div class="crop-image-wrapper" id="cropImageWrapper">
+                        <img id="cropImage" alt="裁剪图片">
+                        <div class="crop-box" id="cropBox">
+                            <div class="crop-handle crop-handle-nw"></div>
+                            <div class="crop-handle crop-handle-ne"></div>
+                            <div class="crop-handle crop-handle-sw"></div>
+                            <div class="crop-handle crop-handle-se"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-actions">
+                    <button class="btn btn-stop" id="cancelCrop">取消</button>
+                    <button class="btn btn-capture" id="confirmCrop">✂️ 确认裁剪</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入html2canvas库用于导出图片 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

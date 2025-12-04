@@ -1,0 +1,2067 @@
+/* ==================== 导入可爱字体 ==================== */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+/* ==================== 全局样式 ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 背景闪烁星星效果 */
+.sparkles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(3px 3px at 50px 160px, #fff, transparent),
+        radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(2px 2px at 130px 80px, #fff, transparent),
+        radial-gradient(3px 3px at 160px 120px, rgba(255,255,255,0.7), transparent);
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: sparkle 4s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+.container {
+    display: flex;
+    gap: 0;
+    max-width: none;
+    margin: 0;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+.container.fullscreen {
+    width: 100vw;
+}
+
+/* ==================== 折叠按钮样式 ==================== */
+.toggle-panel-btn {
+    position: fixed;
+    left: 420px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    width: 40px;
+    height: 80px;
+    background: linear-gradient(180deg, #FF9A9E 0%, #FECFEF 100%);
+    border: 3px solid white;
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    box-shadow: 4px 0 15px rgba(255, 154, 158, 0.4);
+    transition: all 0.3s ease;
+}
+
+.toggle-panel-btn:hover {
+    width: 48px;
+    background: linear-gradient(180deg, #FF8A8E 0%, #FEBFDF 100%);
+}
+
+.toggle-icon {
+    font-size: 18px;
+}
+
+.toggle-arrow {
+    font-size: 12px;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+.toggle-panel-btn.collapsed {
+    left: 0;
+    border-radius: 0 20px 20px 0;
+}
+
+.toggle-panel-btn.collapsed .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+/* ==================== 左侧面板样式 ==================== */
+.left-panel {
+    flex: 0 0 420px;
+    width: 420px;
+    background: linear-gradient(180deg, #fff9f9 0%, #fff5f8 100%);
+    border-radius: 0;
+    padding: 20px;
+    box-shadow: 
+        4px 0 30px rgba(255, 182, 193, 0.3),
+        inset 0 0 30px rgba(255, 255, 255, 0.5);
+    overflow-y: auto;
+    border-right: 3px solid rgba(255, 182, 193, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 50;
+}
+
+.left-panel.collapsed {
+    margin-left: -420px;
+}
+
+.left-panel h1 {
+    text-align: center;
+    color: #e75480;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.title-icon {
+    font-size: 28px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.title-stars {
+    animation: twinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.section-title {
+    color: #e75480;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 5px;
+}
+
+/* ==================== 颜色选择器样式 ==================== */
+.color-picker-section {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 154, 158, 0.3);
+}
+
+.color-picker-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e75480;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.color-preset-colors {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.color-preset {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-preset:hover {
+    transform: scale(1.1);
+    border-color: #FF9A9E;
+    box-shadow: 0 4px 8px rgba(255, 154, 158, 0.4);
+}
+
+.color-preset.active {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+    transform: scale(1.05);
+}
+
+.color-picker-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.color-picker-row input[type="color"] {
+    width: 50px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+}
+
+.color-picker-row input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+.color-picker-row input[type="color"]::-webkit-color-swatch {
+    border-radius: 6px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.color-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* 弹窗内颜色选择器 */
+.modal-color-picker {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 182, 193, 0.1);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 154, 158, 0.3);
+}
+
+.modal-color-picker .color-preset-colors {
+    margin-bottom: 12px;
+}
+
+.apply-color-btn {
+    padding: 8px 20px;
+    background: linear-gradient(180deg, #FF9A9E 0%, #FECFEF 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 154, 158, 0.4);
+}
+
+.apply-color-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 154, 158, 0.5);
+}
+
+/* ==================== 富士Instax Mini相机样式 ==================== */
+.camera-section {
+    margin-bottom: 20px;
+}
+
+.instax-camera {
+    background: linear-gradient(180deg, #FFB5C5 0%, #FFA0B4 50%, #FF8FA3 100%);
+    border-radius: 30px 30px 25px 25px;
+    padding: 15px;
+    position: relative;
+    box-shadow: 
+        0 10px 30px rgba(255, 133, 162, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.1);
+    border: 3px solid #FF7A93;
+    margin-bottom: 15px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 相机顶部 */
+.instax-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+}
+
+/* 闪光灯 */
+.instax-flash {
+    width: 45px;
+    height: 30px;
+    background: linear-gradient(180deg, #333 0%, #222 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.flash-window {
+    width: 30px;
+    height: 18px;
+    background: linear-gradient(180deg, #f8f8f8 0%, #ddd 50%, #bbb 100%);
+    border-radius: 3px;
+    box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+/* 快门按钮 */
+.instax-shutter-area {
+    position: relative;
+}
+
+.instax-shutter-btn {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(180deg, #f5f5f5 0%, #ddd 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.2),
+        inset 0 2px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.1s ease;
+}
+
+.instax-shutter-btn:hover {
+    transform: scale(1.05);
+}
+
+.instax-shutter-btn:active {
+    transform: scale(0.95);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.shutter-inner {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(180deg, #FF6B8A 0%, #FF5277 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* 曝光调节 */
+.instax-exposure {
+    width: 35px;
+    height: 25px;
+    background: #333;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.exposure-dial {
+    width: 20px;
+    height: 15px;
+    background: linear-gradient(90deg, #666 0%, #888 50%, #666 100%);
+    border-radius: 2px;
+}
+
+/* 相机主体 */
+.instax-body {
+    background: linear-gradient(180deg, #fff 0%, #f8f8f8 100%);
+    border-radius: 20px;
+    padding: 15px;
+    position: relative;
+    box-shadow: 
+        inset 0 2px 0 rgba(255, 255, 255, 1),
+        0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 镜头区域 */
+.instax-lens-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.instax-lens {
+    flex: 1;
+}
+
+.lens-outer {
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border-radius: 15px;
+    padding: 8px;
+    box-shadow: 
+        0 0 0 3px #444,
+        0 0 0 5px #333,
+        inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.lens-middle {
+    background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.lens-inner {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+/* 取景器屏幕 */
+.viewfinder-screen {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+#video.mirrored {
+    transform: scaleX(-1);
+}
+
+.preview-container {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* 相机占位符 */
+.camera-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    color: #888;
+}
+
+.placeholder-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    animation: camera-pulse 2s ease-in-out infinite;
+}
+
+@keyframes camera-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.placeholder-text {
+    font-size: 12px;
+    text-align: center;
+    color: #aaa;
+}
+
+/* 自拍镜 */
+.instax-selfie-mirror {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(180deg, #333 0%, #222 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.mirror-inner {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #666 0%, #444 50%, #555 100%);
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+/* 品牌标识 */
+.instax-brand {
+    text-align: center;
+    padding-top: 5px;
+}
+
+.brand-text {
+    font-family: 'Arial', sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    font-style: italic;
+    color: #FF5277;
+    letter-spacing: 2px;
+}
+
+.brand-mini {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: #999;
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+/* 相机底部 */
+.instax-bottom {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.photo-output {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.output-slot {
+    width: 70%;
+    height: 8px;
+    background: linear-gradient(180deg, #222 0%, #111 100%);
+    border-radius: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 计数器 */
+.instax-counter {
+    width: 30px;
+    height: 20px;
+    background: #222;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #ff6b6b;
+    font-weight: bold;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* 相机贴纸 */
+.camera-sticker {
+    position: absolute;
+    font-size: 20px;
+    animation: sticker-float 3s ease-in-out infinite;
+    z-index: 10;
+}
+
+.sticker-star {
+    top: -8px;
+    right: 15px;
+    animation-delay: 0s;
+}
+
+.sticker-heart {
+    bottom: 15px;
+    left: -8px;
+    animation-delay: 1s;
+}
+
+.sticker-flower {
+    top: 50%;
+    right: -10px;
+    animation-delay: 2s;
+}
+
+@keyframes sticker-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-3px) rotate(5deg); }
+    75% { transform: translateY(3px) rotate(-5deg); }
+}
+
+/* ==================== 镜像选项 ==================== */
+.mirror-option {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.mirror-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    user-select: none;
+}
+
+.mirror-checkbox input {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #FFB5C5;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.mirror-checkbox input:checked + .checkbox-custom {
+    background: #FF7A93;
+    border-color: #FF7A93;
+}
+
+.mirror-checkbox input:checked + .checkbox-custom::after {
+    content: '✓';
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.mirror-label {
+    font-weight: 600;
+}
+
+/* ==================== 控制按钮样式 ==================== */
+.camera-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+.btn-camera {
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    color: #d63384;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-capture {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #20c997;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    animation: capture-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes capture-glow {
+    0%, 100% { box-shadow: 0 4px 15px rgba(168, 237, 234, 0.4); }
+    50% { box-shadow: 0 4px 25px rgba(168, 237, 234, 0.8); }
+}
+
+.btn-stop {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #e67e22;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ==================== 上传区域样式 ==================== */
+.upload-section {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(255, 182, 193, 0.1) 0%, rgba(255, 218, 233, 0.1) 100%);
+    border-radius: 20px;
+    border: 2px dashed rgba(255, 182, 193, 0.4);
+}
+
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #e67e22;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(252, 182, 159, 0.3);
+    font-family: 'Nunito', sans-serif;
+}
+
+.upload-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(252, 182, 159, 0.5);
+}
+
+.upload-icon {
+    font-size: 18px;
+}
+
+.upload-sparkle {
+    animation: twinkle 1.5s ease-in-out infinite;
+}
+
+/* ==================== 相纸样式选择 ==================== */
+.frame-selection, .background-selection, .layout-selection {
+    margin-bottom: 20px;
+}
+
+.frame-options, .bg-options, .layout-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.frame-option, .bg-option, .layout-option {
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    border: 3px solid transparent;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.frame-option:hover, .bg-option:hover, .layout-option:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+}
+
+.frame-option.active, .bg-option.active, .layout-option.active {
+    border-color: #FF9A9E;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3);
+}
+
+.frame-preview, .bg-preview {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.frame-name, .bg-name, .layout-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+}
+
+/* ==================== 排版模板预览样式 ==================== */
+.layout-preview {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    border: 2px solid #ddd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.layout-dot {
+    width: 12px;
+    height: 14px;
+    background: linear-gradient(180deg, #FFB6C1 0%, #FF69B4 100%);
+    border-radius: 2px;
+    position: absolute;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 网格排列预览 */
+.layout-grid .layout-dot:nth-child(1) { top: 15%; left: 20%; }
+.layout-grid .layout-dot:nth-child(2) { top: 15%; right: 20%; }
+.layout-grid .layout-dot:nth-child(3) { bottom: 15%; left: 20%; }
+.layout-grid .layout-dot:nth-child(4) { bottom: 15%; right: 20%; }
+
+/* 横向排列预览 */
+.layout-row .layout-dot:nth-child(1) { top: 50%; left: 15%; transform: translateY(-50%); }
+.layout-row .layout-dot:nth-child(2) { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.layout-row .layout-dot:nth-child(3) { top: 50%; right: 15%; transform: translateY(-50%); }
+
+/* 纵向排列预览 */
+.layout-column .layout-dot:nth-child(1) { top: 10%; left: 50%; transform: translateX(-50%); }
+.layout-column .layout-dot:nth-child(2) { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.layout-column .layout-dot:nth-child(3) { bottom: 10%; left: 50%; transform: translateX(-50%); }
+
+/* 对角线预览 */
+.layout-diagonal .layout-dot:nth-child(1) { top: 15%; left: 15%; transform: rotate(-15deg); }
+.layout-diagonal .layout-dot:nth-child(2) { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); }
+.layout-diagonal .layout-dot:nth-child(3) { bottom: 15%; right: 15%; transform: rotate(-15deg); }
+
+/* 环形排列预览 */
+.layout-circle .layout-dot:nth-child(1) { top: 10%; left: 50%; transform: translateX(-50%); }
+.layout-circle .layout-dot:nth-child(2) { top: 50%; right: 10%; transform: translateY(-50%); }
+.layout-circle .layout-dot:nth-child(3) { bottom: 10%; left: 50%; transform: translateX(-50%); }
+.layout-circle .layout-dot:nth-child(4) { top: 50%; left: 10%; transform: translateY(-50%); }
+
+/* 随机散落预览 */
+.layout-scatter .layout-dot:nth-child(1) { top: 20%; left: 25%; transform: rotate(10deg); }
+.layout-scatter .layout-dot:nth-child(2) { top: 40%; right: 20%; transform: rotate(-8deg); }
+.layout-scatter .layout-dot:nth-child(3) { bottom: 20%; left: 40%; transform: rotate(5deg); }
+
+/* 相纸样式预览 */
+.frame-bear {
+    background: linear-gradient(180deg, #FFF5E6 0%, #FFE4C4 100%);
+    border: 3px solid #DEB887;
+    position: relative;
+}
+
+.frame-bear::before {
+    content: '🐾';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.frame-rainbow {
+    background: linear-gradient(180deg, 
+        #ff9a9e 0%, 
+        #fecfef 20%, 
+        #ffecd2 40%, 
+        #a8edea 60%, 
+        #d299c2 80%, 
+        #fef9d7 100%);
+    border: 3px solid #fecfef;
+}
+
+.frame-flower {
+    background: linear-gradient(180deg, #FFE4EC 0%, #FFCCD5 100%);
+    border: 3px solid #FFB6C1;
+    position: relative;
+}
+
+.frame-flower::before {
+    content: '🌸';
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.frame-flower::after {
+    content: '🌸';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.frame-custom {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    border: 3px dashed #ccc;
+}
+
+/* 纯色相纸选项 - 仅预览样式 */
+.frame-preview.frame-solid-color,
+.modal-frame-preview.frame-solid-color {
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 50%, #e8e8e8 100%);
+    border: 3px solid #ddd;
+    position: relative;
+}
+
+.frame-preview.frame-solid-color::after,
+.modal-frame-preview.frame-solid-color::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background: conic-gradient(
+        #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #ff6b6b
+    );
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+/* 海洋蓝相纸 */
+.frame-ocean {
+    background: linear-gradient(180deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%);
+    border: 3px solid #4DD0E1;
+    position: relative;
+}
+
+.frame-ocean::before {
+    content: '🌊';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* 糖果屋相纸 */
+.frame-candy {
+    background: linear-gradient(135deg, #FFE4E1 0%, #FFC1CC 25%, #FFB6C1 50%, #DDA0DD 75%, #E6E6FA 100%);
+    border: 3px solid #FFB6C1;
+    position: relative;
+}
+
+.frame-candy::before {
+    content: '🍭';
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* 薰衣草相纸 */
+.frame-lavender {
+    background: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 50%, #CE93D8 100%);
+    border: 3px solid #BA68C8;
+    position: relative;
+}
+
+.frame-lavender::before {
+    content: '✿';
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 12px;
+    opacity: 0.5;
+    color: #9C27B0;
+}
+
+/* 柠檬黄相纸 */
+.frame-lemon {
+    background: linear-gradient(180deg, #FFFDE7 0%, #FFF9C4 50%, #FFF59D 100%);
+    border: 3px solid #FFEE58;
+    position: relative;
+}
+
+.frame-lemon::before {
+    content: '☀️';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* 薄荷绿相纸 */
+.frame-mint {
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
+    border: 3px solid #81C784;
+    position: relative;
+}
+
+.frame-mint::before {
+    content: '🌿';
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* 背景样式预览 */
+.bg-preview {
+    aspect-ratio: 16/10;
+}
+
+.bg-starry {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    position: relative;
+}
+
+.bg-starry::before {
+    content: '✨';
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 10px;
+}
+
+.bg-starry::after {
+    content: '⭐';
+    position: absolute;
+    bottom: 12px;
+    right: 8px;
+    font-size: 8px;
+}
+
+.bg-cloud {
+    background: linear-gradient(180deg, #89CFF0 0%, #A7D8FF 50%, #C9E4FF 100%);
+    position: relative;
+}
+
+.bg-cloud::before {
+    content: '☁️';
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 12px;
+}
+
+.bg-meadow {
+    background: linear-gradient(180deg, #98FB98 0%, #90EE90 50%, #7CFC00 100%);
+    position: relative;
+}
+
+.bg-meadow::before {
+    content: '🌼';
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    font-size: 10px;
+}
+
+.bg-meadow::after {
+    content: '🦋';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 10px;
+}
+
+.bg-custom-upload {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    border: 3px dashed #ccc;
+}
+
+/* 纯色背景选项 - 仅预览样式 */
+.bg-preview.bg-solid-color {
+    background: linear-gradient(135deg, #fff 0%, #f8f8f8 50%, #f0f0f0 100%);
+    border: 3px solid #ddd;
+    position: relative;
+}
+
+.bg-preview.bg-solid-color::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    background: conic-gradient(
+        #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #ff6b6b
+    );
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+/* 晚霞橙背景预览 */
+.bg-sunset {
+    background: linear-gradient(180deg, #FF6B6B 0%, #FF8E53 30%, #FFA726 60%, #FFD54F 100%);
+    position: relative;
+}
+
+.bg-sunset::before {
+    content: '☀️';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+}
+
+/* 极光紫背景预览 */
+.bg-aurora {
+    background: linear-gradient(180deg, #0D0D2B 0%, #1A1A4E 20%, #4A148C 50%, #7B1FA2 70%, #E040FB 100%);
+    position: relative;
+}
+
+.bg-aurora::before {
+    content: '✨';
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-size: 10px;
+}
+
+.bg-aurora::after {
+    content: '💫';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 8px;
+}
+
+/* 沙滩海背景预览 */
+.bg-beach {
+    background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 40%, #00BCD4 40%, #00ACC1 60%, #F5DEB3 60%, #DEB887 100%);
+    position: relative;
+}
+
+.bg-beach::before {
+    content: '🐚';
+    position: absolute;
+    bottom: 6px;
+    left: 10px;
+    font-size: 10px;
+}
+
+/* 森林绿背景预览 */
+.bg-forest {
+    background: linear-gradient(180deg, #1B5E20 0%, #2E7D32 30%, #388E3C 50%, #43A047 70%, #66BB6A 100%);
+    position: relative;
+}
+
+.bg-forest::before {
+    content: '🌲';
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    font-size: 12px;
+}
+
+.bg-forest::after {
+    content: '🌲';
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 10px;
+}
+
+/* 樱花季背景预览 */
+.bg-cherry {
+    background: linear-gradient(180deg, #FCE4EC 0%, #F8BBD9 30%, #F48FB1 60%, #F06292 100%);
+    position: relative;
+}
+
+.bg-cherry::before {
+    content: '🌸';
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-size: 10px;
+}
+
+.bg-cherry::after {
+    content: '🌸';
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    font-size: 8px;
+}
+
+/* ==================== 右侧照片墙 ==================== */
+.right-panel {
+    flex: 1;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.photo-wall-header {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+}
+
+.photo-wall-header h2 {
+    display: none;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.operation-tips {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+    text-align: center;
+    z-index: 20;
+    backdrop-filter: blur(5px);
+}
+
+/* 照片墙 */
+.photo-wall {
+    flex: 1;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    height: 100vh;
+    box-shadow: none;
+}
+
+/* 星空背景 */
+.bg-starry-wall {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* 云朵背景 */
+.bg-cloud-wall {
+    background: linear-gradient(180deg, #89CFF0 0%, #A7D8FF 50%, #C9E4FF 100%);
+}
+
+/* 晚霞橙背景 */
+.bg-sunset-wall {
+    background: linear-gradient(180deg, #FF6B6B 0%, #FF8E53 30%, #FFA726 60%, #FFD54F 100%);
+}
+
+/* 极光紫背景 */
+.bg-aurora-wall {
+    background: linear-gradient(180deg, #0D0D2B 0%, #1A1A4E 20%, #4A148C 50%, #7B1FA2 70%, #E040FB 100%);
+}
+
+/* 沙滩海背景 */
+.bg-beach-wall {
+    background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 30%, #00BCD4 30%, #00ACC1 50%, #F5DEB3 50%, #DEB887 100%);
+}
+
+/* 森林绿背景 */
+.bg-forest-wall {
+    background: linear-gradient(180deg, #1B5E20 0%, #2E7D32 30%, #388E3C 50%, #43A047 70%, #66BB6A 100%);
+}
+
+/* 樱花季背景 */
+.bg-cherry-wall {
+    background: linear-gradient(180deg, #FCE4EC 0%, #F8BBD9 30%, #F48FB1 60%, #F06292 100%);
+}
+
+/* 草地背景 */
+.bg-meadow-wall {
+    background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 40%, #98FB98 40%, #7CFC00 100%);
+}
+
+/* 背景装饰 */
+.wall-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.deco-star {
+    position: absolute;
+    animation: float-star 4s ease-in-out infinite;
+}
+
+.deco-1 { top: 10%; left: 15%; animation-delay: 0s; font-size: 20px; }
+.deco-2 { top: 25%; right: 20%; animation-delay: 1s; font-size: 16px; }
+.deco-3 { bottom: 30%; left: 10%; animation-delay: 2s; font-size: 18px; }
+.deco-4 { top: 50%; right: 10%; animation-delay: 0.5s; font-size: 14px; }
+
+.deco-moon {
+    position: absolute;
+    top: 8%;
+    right: 8%;
+    font-size: 35px;
+    animation: moon-glow 3s ease-in-out infinite;
+}
+
+@keyframes float-star {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+    50% { transform: translateY(-10px) rotate(180deg); opacity: 1; }
+}
+
+@keyframes moon-glow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 255, 200, 0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(255, 255, 200, 0.8)); }
+}
+
+/* 空状态 */
+.empty-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 1;
+}
+
+.empty-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    animation: camera-pulse 2s ease-in-out infinite;
+}
+
+.empty-text {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.empty-hint {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* ==================== 拍立得照片样式 ==================== */
+.polaroid {
+    position: absolute;
+    cursor: grab;
+    user-select: none;
+    transition: box-shadow 0.2s ease;
+    z-index: 1;
+}
+
+.polaroid:hover {
+    z-index: 10;
+}
+
+.polaroid.dragging {
+    cursor: grabbing;
+    opacity: 0.9;
+    z-index: 100;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+/* 旋转手柄 */
+.rotate-handle {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    border-radius: 50%;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.polaroid:hover .rotate-handle {
+    opacity: 1;
+}
+
+.rotate-handle:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.rotate-handle:active {
+    cursor: grabbing;
+}
+
+/* 缩放手柄 */
+.resize-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    border: 2px solid white;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.polaroid:hover .resize-handle {
+    opacity: 1;
+}
+
+.resize-handle:hover {
+    transform: scale(1.2);
+    background: linear-gradient(135deg, #98ddd9 0%, #fec6d3 100%);
+}
+
+.resize-handle-nw {
+    top: -8px;
+    left: -8px;
+    cursor: nw-resize;
+}
+
+.resize-handle-ne {
+    top: -8px;
+    right: -8px;
+    cursor: ne-resize;
+}
+
+.resize-handle-sw {
+    bottom: -8px;
+    left: -8px;
+    cursor: sw-resize;
+}
+
+.resize-handle-se {
+    bottom: -8px;
+    right: -8px;
+    cursor: se-resize;
+}
+
+/* 可爱相纸样式 */
+.polaroid-inner {
+    padding: 10px 10px 45px 10px;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    position: relative;
+}
+
+/* 小熊相纸 */
+.polaroid-inner.frame-bear {
+    background: linear-gradient(180deg, #FFF5E6 0%, #FFE4C4 100%);
+    border: 2px solid #DEB887;
+}
+
+.polaroid-inner.frame-bear::before {
+    content: '🧸';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-bear::after {
+    content: '🐾 🐾 🐾';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* 彩虹相纸 */
+.polaroid-inner.frame-rainbow {
+    background: linear-gradient(180deg, 
+        rgba(255, 154, 158, 0.3) 0%, 
+        rgba(254, 207, 239, 0.3) 20%, 
+        rgba(255, 236, 210, 0.3) 40%, 
+        rgba(168, 237, 234, 0.3) 60%, 
+        rgba(210, 153, 194, 0.3) 80%, 
+        rgba(254, 249, 215, 0.3) 100%),
+        white;
+    border: 2px solid #fecfef;
+}
+
+.polaroid-inner.frame-rainbow::before {
+    content: '🌈';
+    position: absolute;
+    bottom: 6px;
+    left: 12px;
+    font-size: 20px;
+}
+
+.polaroid-inner.frame-rainbow::after {
+    content: '✨💖✨';
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+}
+
+/* 樱花相纸 */
+.polaroid-inner.frame-flower {
+    background: linear-gradient(180deg, #FFE4EC 0%, #FFCCD5 100%);
+    border: 2px solid #FFB6C1;
+}
+
+.polaroid-inner.frame-flower::before {
+    content: '🌸';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-flower::after {
+    content: '🌸 🌸';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 14px;
+    letter-spacing: 4px;
+}
+
+/* 自定义相纸 */
+.polaroid-inner.frame-custom {
+    background-size: cover;
+    background-position: center;
+}
+
+/* 海洋蓝相纸 */
+.polaroid-inner.frame-ocean {
+    background: linear-gradient(180deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%);
+    border: 2px solid #4DD0E1;
+}
+
+.polaroid-inner.frame-ocean::before {
+    content: '🐚';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-ocean::after {
+    content: '🌊 🐠';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+}
+
+/* 糖果屋相纸 */
+.polaroid-inner.frame-candy {
+    background: linear-gradient(135deg, #FFE4E1 0%, #FFC1CC 25%, #FFB6C1 50%, #DDA0DD 75%, #E6E6FA 100%);
+    border: 2px solid #FFB6C1;
+}
+
+.polaroid-inner.frame-candy::before {
+    content: '🍬';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-candy::after {
+    content: '🍭🍫';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+}
+
+/* 薰衣草相纸 */
+.polaroid-inner.frame-lavender {
+    background: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 50%, #CE93D8 100%);
+    border: 2px solid #BA68C8;
+}
+
+.polaroid-inner.frame-lavender::before {
+    content: '💜';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-lavender::after {
+    content: '✿ ✿';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+    color: #9C27B0;
+}
+
+/* 柠檬黄相纸 */
+.polaroid-inner.frame-lemon {
+    background: linear-gradient(180deg, #FFFDE7 0%, #FFF9C4 50%, #FFF59D 100%);
+    border: 2px solid #FFEE58;
+}
+
+.polaroid-inner.frame-lemon::before {
+    content: '🍋';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-lemon::after {
+    content: '☀️✨';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+}
+
+/* 薄荷绿相纸 */
+.polaroid-inner.frame-mint {
+    background: linear-gradient(180deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
+    border: 2px solid #81C784;
+}
+
+.polaroid-inner.frame-mint::before {
+    content: '🍃';
+    position: absolute;
+    bottom: 8px;
+    left: 12px;
+    font-size: 18px;
+}
+
+.polaroid-inner.frame-mint::after {
+    content: '🌿🌱';
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 12px;
+}
+
+/* 纯色相纸样式 */
+.polaroid-inner.frame-solid-color {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        inset 0 0 15px rgba(0, 0, 0, 0.03),
+        0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.polaroid-img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    border-radius: 3px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 照片控制按钮 */
+.polaroid-controls {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 6px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.polaroid:hover .polaroid-controls {
+    opacity: 1;
+}
+
+.control-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.control-btn:hover {
+    background: linear-gradient(135deg, #FF7A8A 0%, #FEBFDF 100%);
+    transform: scale(1.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== 弹窗样式 ==================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modal-pop 0.3s ease;
+}
+
+@keyframes modal-pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.modal-header h3 {
+    color: #e75480;
+    font-size: 18px;
+}
+
+.modal-close {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #f0f0f0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #FF9A9E;
+    color: white;
+}
+
+.modal-frame-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-frame-option {
+    text-align: center;
+    padding: 12px;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f8f8;
+}
+
+.modal-frame-option:hover {
+    border-color: #FFB6C1;
+    background: #fff;
+}
+
+.modal-frame-preview {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.modal-frame-option span {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+}
+
+/* ==================== 滚动条样式 ==================== */
+.left-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-track {
+    background: rgba(255, 182, 193, 0.1);
+    border-radius: 10px;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #FFB6C1 0%, #FF69B4 100%);
+    border-radius: 10px;
+}
+
+.left-panel::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #FF69B4 0%, #FF1493 100%);
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 1024px) {
+    .left-panel {
+        flex: 0 0 360px;
+        width: 360px;
+    }
+    
+    .left-panel.collapsed {
+        margin-left: -360px;
+    }
+    
+    .toggle-panel-btn {
+        left: 360px;
+    }
+    
+    .toggle-panel-btn.collapsed {
+        left: 0;
+    }
+    
+    .instax-camera {
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-panel {
+        flex: 0 0 320px;
+        width: 320px;
+        padding: 15px;
+    }
+    
+    .left-panel.collapsed {
+        margin-left: -320px;
+    }
+    
+    .toggle-panel-btn {
+        left: 320px;
+    }
+    
+    .toggle-panel-btn.collapsed {
+        left: 0;
+    }
+    
+    .left-panel h1 {
+        font-size: 20px;
+    }
+    
+    .frame-options, .bg-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+    
+    .instax-camera {
+        max-width: 260px;
+    }
+}
+
+@media (max-width: 480px) {
+    .left-panel {
+        flex: 0 0 100vw;
+        width: 100vw;
+        border-radius: 0;
+    }
+    
+    .left-panel.collapsed {
+        margin-left: -100vw;
+    }
+    
+    .toggle-panel-btn {
+        left: 100vw;
+        width: 36px;
+        height: 60px;
+    }
+    
+    .toggle-panel-btn.collapsed {
+        left: 0;
+    }
+    
+    .instax-camera {
+        max-width: 240px;
+    }
+    
+    .photo-wall-header {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .operation-tips {
+        bottom: 10px;
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+}
+
+/* ==================== 拍照闪光效果 ==================== */
+.flash-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    animation: flash 0.3s ease-out;
+}
+
+@keyframes flash {
+    0% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+
+/* ==================== 照片弹出动画 ==================== */
+.polaroid.photo-pop {
+    animation: photo-pop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes photo-pop {
+    0% { 
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+    100% { 
+        transform: scale(1) rotate(var(--rotate, 0deg));
+        opacity: 1;
+    }
+}
+
+/* ==================== 图片裁剪弹窗样式 ==================== */
+.crop-modal-content {
+    max-width: 500px;
+}
+
+.crop-container {
+    margin-bottom: 15px;
+}
+
+.crop-image-wrapper {
+    position: relative;
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    background: #f0f0f0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cropImage {
+    max-width: 100%;
+    max-height: 400px;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.crop-box {
+    position: absolute;
+    border: 3px dashed #FF9A9E;
+    background: rgba(255, 154, 158, 0.1);
+    cursor: move;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.crop-handle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #FF9A9E;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.crop-handle-nw { top: -8px; left: -8px; cursor: nw-resize; }
+.crop-handle-ne { top: -8px; right: -8px; cursor: ne-resize; }
+.crop-handle-sw { bottom: -8px; left: -8px; cursor: sw-resize; }
+.crop-handle-se { bottom: -8px; right: -8px; cursor: se-resize; }
+
+.crop-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
