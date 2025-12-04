@@ -1746,13 +1746,13 @@ body {
 .caption-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 100%;
-    gap: 2px;
+    position: relative;
 }
 
 .caption-input {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
     border: none;
     background: transparent;
     text-align: center;
@@ -1780,24 +1780,25 @@ body {
 }
 
 .caption-style-btn {
-    width: 20px;
-    height: 20px;
+    position: absolute;
+    right: 0;
+    width: 18px;
+    height: 18px;
     border: none;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 50%;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 9px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    flex-shrink: 0;
     opacity: 0;
     pointer-events: none;
 }
 
 .caption-row:hover .caption-style-btn,
-.caption-input:focus + .caption-style-btn,
+.caption-input:focus ~ .caption-style-btn,
 .caption-style-btn:focus {
     opacity: 1;
     pointer-events: auto;
