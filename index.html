@@ -507,24 +507,110 @@
     <div id="cropModal" class="modal" style="display: none;">
         <div class="modal-content crop-modal-content">
             <div class="modal-header">
-                <h3>✂️ 选择图片区域</h3>
+                <h3>✂️ 调整背景位置</h3>
                 <button class="modal-close" id="closeCropModal">✕</button>
             </div>
             <div class="modal-body">
+                <div class="crop-tips">💡 拖动选择框移动位置，使用下方滑块旋转图片</div>
                 <div class="crop-container">
                     <div class="crop-image-wrapper" id="cropImageWrapper">
                         <img id="cropImage" alt="裁剪图片">
                         <div class="crop-box" id="cropBox">
-                            <div class="crop-handle crop-handle-nw"></div>
-                            <div class="crop-handle crop-handle-ne"></div>
-                            <div class="crop-handle crop-handle-sw"></div>
-                            <div class="crop-handle crop-handle-se"></div>
+                            <div class="crop-box-inner"></div>
                         </div>
                     </div>
+                </div>
+                <div class="crop-rotate-control">
+                    <span class="rotate-label">🔄 旋转角度</span>
+                    <input type="range" id="cropRotateSlider" min="-180" max="180" value="0" class="rotate-slider">
+                    <span id="cropRotateValue" class="rotate-value">0°</span>
                 </div>
                 <div class="crop-actions">
                     <button class="btn btn-stop" id="cancelCrop">取消</button>
                     <button class="btn btn-capture" id="confirmCrop">✂️ 确认裁剪</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文字样式设置弹窗 -->
+    <div id="captionStyleModal" class="modal" style="display: none;">
+        <div class="modal-content caption-style-modal-content">
+            <div class="modal-header">
+                <h3>✏️ 文字样式设置</h3>
+                <button class="modal-close" id="closeCaptionStyleModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- 字体选择 -->
+                <div class="style-section">
+                    <div class="style-label">📝 字体</div>
+                    <div class="font-options">
+                        <div class="font-option active" data-font="'Nunito', sans-serif">
+                            <span style="font-family: 'Nunito', sans-serif;">可爱圆体</span>
+                        </div>
+                        <div class="font-option" data-font="'Comic Sans MS', cursive">
+                            <span style="font-family: 'Comic Sans MS', cursive;">手写体</span>
+                        </div>
+                        <div class="font-option" data-font="'Georgia', serif">
+                            <span style="font-family: 'Georgia', serif;">衬线体</span>
+                        </div>
+                        <div class="font-option" data-font="'Arial', sans-serif">
+                            <span style="font-family: 'Arial', sans-serif;">无衬线</span>
+                        </div>
+                        <div class="font-option" data-font="'KaiTi', 'STKaiti', serif">
+                            <span style="font-family: 'KaiTi', 'STKaiti', serif;">楷体</span>
+                        </div>
+                        <div class="font-option" data-font="'SimSun', 'STSong', serif">
+                            <span style="font-family: 'SimSun', 'STSong', serif;">宋体</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 颜色选择 -->
+                <div class="style-section">
+                    <div class="style-label">🎨 颜色</div>
+                    <div class="color-options">
+                        <div class="text-color-option active" data-color="#666666" style="background: #666666;"></div>
+                        <div class="text-color-option" data-color="#333333" style="background: #333333;"></div>
+                        <div class="text-color-option" data-color="#000000" style="background: #000000;"></div>
+                        <div class="text-color-option" data-color="#FF6B6B" style="background: #FF6B6B;"></div>
+                        <div class="text-color-option" data-color="#FF9A9E" style="background: #FF9A9E;"></div>
+                        <div class="text-color-option" data-color="#A8E6CF" style="background: #A8E6CF;"></div>
+                        <div class="text-color-option" data-color="#88D8B0" style="background: #88D8B0;"></div>
+                        <div class="text-color-option" data-color="#87CEEB" style="background: #87CEEB;"></div>
+                        <div class="text-color-option" data-color="#DDA0DD" style="background: #DDA0DD;"></div>
+                        <div class="text-color-option" data-color="#FFD700" style="background: #FFD700;"></div>
+                        <div class="text-color-option" data-color="#FF8C00" style="background: #FF8C00;"></div>
+                        <div class="text-color-option" data-color="#8B4513" style="background: #8B4513;"></div>
+                    </div>
+                    <div class="custom-color-row">
+                        <input type="color" id="captionColorPicker" value="#666666">
+                        <span id="captionColorValue">#666666</span>
+                    </div>
+                </div>
+                
+                <!-- 倾斜设置 -->
+                <div class="style-section">
+                    <div class="style-label">📐 倾斜</div>
+                    <div class="italic-options">
+                        <div class="italic-option active" data-italic="normal">
+                            <span style="font-style: normal;">正常</span>
+                        </div>
+                        <div class="italic-option" data-italic="italic">
+                            <span style="font-style: italic;">倾斜</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 预览 -->
+                <div class="style-preview-section">
+                    <div class="style-label">👀 预览</div>
+                    <div class="caption-preview" id="captionPreview">预览文字效果</div>
+                </div>
+                
+                <div class="style-actions">
+                    <button class="btn btn-stop" id="cancelCaptionStyle">取消</button>
+                    <button class="btn btn-capture" id="applyCaptionStyle">✅ 应用样式</button>
                 </div>
             </div>
         </div>

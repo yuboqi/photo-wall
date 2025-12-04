@@ -35,21 +35,20 @@ let cropCallback = null; // 裁剪完成后的回调
 let cropBox = null;
 let cropImage = null;
 let isDraggingCrop = false;
-let isResizingCrop = false;
-let resizeHandle = null;
 let cropStartX = 0;
 let cropStartY = 0;
 let cropBoxStartX = 0;
 let cropBoxStartY = 0;
-let cropBoxStartW = 0;
-let cropBoxStartH = 0;
+let cropRotation = 0; // 图片旋转角度
 
 // 照片固定尺寸（用于导出）
-const PHOTO_WIDTH = 180;
-const PHOTO_HEIGHT = 180;
+const POLAROID_WIDTH = 170;  // 相纸总宽度
+const POLAROID_HEIGHT = 250; // 相纸总高度
 const FRAME_PADDING_TOP = 10;
 const FRAME_PADDING_SIDE = 10;
-const FRAME_PADDING_BOTTOM = 45;
+const FRAME_PADDING_BOTTOM = 60; // 底部留更多空间给文字
+const PHOTO_WIDTH = POLAROID_WIDTH - FRAME_PADDING_SIDE * 2; // 照片宽度 = 150px
+const PHOTO_HEIGHT = POLAROID_HEIGHT - FRAME_PADDING_TOP - FRAME_PADDING_BOTTOM; // 照片高度 = 180px
 
 // ==================== DOM元素获取 ====================
 const video = document.getElementById('video');
@@ -80,6 +79,13 @@ const cropModal = document.getElementById('cropModal');
 const closeCropModalBtn = document.getElementById('closeCropModal');
 const cancelCropBtn = document.getElementById('cancelCrop');
 const confirmCropBtn = document.getElementById('confirmCrop');
+
+// 文字样式弹窗元素
+const captionStyleModal = document.getElementById('captionStyleModal');
+let currentStylePolaroid = null; // 当前正在编辑样式的照片
+let selectedFont = "'Nunito', sans-serif";
+let selectedColor = '#666666';
+let selectedItalic = 'normal';
 
 // 面板折叠元素
 const togglePanelBtn = document.getElementById('togglePanel');
@@ -161,6 +167,9 @@ function initEventListeners() {
     cropModal.addEventListener('click', (e) => {
         if (e.target === cropModal) closeCropModal();
     });
+    
+    // 文字样式弹窗事件
+    initCaptionStyleModal();
     
     // 面板折叠事件
     togglePanelBtn.addEventListener('click', togglePanel);
@@ -428,11 +437,20 @@ function initCropModal() {
     cropBox.addEventListener('mousedown', startCropDrag);
     cropBox.addEventListener('touchstart', startCropDrag, { passive: false });
     
-    // 裁剪框缩放手柄
-    document.querySelectorAll('.crop-handle').forEach(handle => {
-        handle.addEventListener('mousedown', (e) => startCropResize(e, handle));
-        handle.addEventListener('touchstart', (e) => startCropResize(e, handle), { passive: false });
-    });
+    // 旋转滑块
+    const rotateSlider = document.getElementById('cropRotateSlider');
+    const rotateValue = document.getElementById('cropRotateValue');
+    if (rotateSlider) {
+        rotateSlider.addEventListener('input', (e) => {
+            cropRotation = parseInt(e.target.value);
+            if (rotateValue) {
+                rotateValue.textContent = cropRotation + '°';
+            }
+            if (cropImage) {
+                cropImage.style.transform = `rotate(${cropRotation}deg)`;
+            }
+        });
+    }
 }
 
 // ==================== 更新墙面装饰 ====================
@@ -853,26 +871,34 @@ function handleCustomBg(event) {
 function openCropModal(imageData, callback) {
     cropImageData = imageData;
     cropCallback = callback;
+    cropRotation = 0; // 重置旋转角度
+    
+    // 重置旋转滑块
+    const rotateSlider = document.getElementById('cropRotateSlider');
+    const rotateValue = document.getElementById('cropRotateValue');
+    if (rotateSlider) rotateSlider.value = 0;
+    if (rotateValue) rotateValue.textContent = '0°';
     
     cropImage.src = imageData;
+    cropImage.style.transform = 'rotate(0deg)';
+    
     cropImage.onload = () => {
-        // 初始化裁剪框位置和大小
-        const imgRect = cropImage.getBoundingClientRect();
-        const wrapperRect = document.getElementById('cropImageWrapper').getBoundingClientRect();
+        const wrapper = document.getElementById('cropImageWrapper');
+        const wrapperWidth = wrapper.offsetWidth;
+        const wrapperHeight = wrapper.offsetHeight;
         
-        // 计算图片在容器中的实际位置
-        const imgWidth = cropImage.offsetWidth;
-        const imgHeight = cropImage.offsetHeight;
+        // 裁剪框固定尺寸为相纸尺寸 170x250
+        const boxWidth = 170;
+        const boxHeight = 250;
         
-        // 设置初始裁剪框为图片中心的正方形
-        const size = Math.min(imgWidth, imgHeight) * 0.6;
-        const left = (imgWidth - size) / 2;
-        const top = (imgHeight - size) / 2;
+        // 将裁剪框居中放置
+        const left = (wrapperWidth - boxWidth) / 2;
+        const top = (wrapperHeight - boxHeight) / 2;
         
         cropBox.style.left = left + 'px';
         cropBox.style.top = top + 'px';
-        cropBox.style.width = size + 'px';
-        cropBox.style.height = size + 'px';
+        cropBox.style.width = boxWidth + 'px';
+        cropBox.style.height = boxHeight + 'px';
         
         cropModal.style.display = 'flex';
     };
@@ -895,33 +921,73 @@ function confirmCrop() {
     
     const img = new Image();
     img.onload = () => {
-        // 获取裁剪框相对于图片的位置
-        const imgWidth = cropImage.offsetWidth;
-        const imgHeight = cropImage.offsetHeight;
+        const wrapper = document.getElementById('cropImageWrapper');
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const imgRect = cropImage.getBoundingClientRect();
         
+        // 获取裁剪框位置（相对于wrapper）
         const boxLeft = parseFloat(cropBox.style.left);
         const boxTop = parseFloat(cropBox.style.top);
         const boxWidth = parseFloat(cropBox.style.width);
         const boxHeight = parseFloat(cropBox.style.height);
         
-        // 计算实际图片上的裁剪区域
-        const scaleX = img.width / imgWidth;
-        const scaleY = img.height / imgHeight;
+        // 创建临时canvas来处理旋转后的图片
+        const rotatedCanvas = document.createElement('canvas');
+        const rotatedCtx = rotatedCanvas.getContext('2d');
         
-        const sx = boxLeft * scaleX;
-        const sy = boxTop * scaleY;
+        // 如果有旋转，先创建旋转后的图片
+        if (cropRotation !== 0) {
+            const radians = cropRotation * Math.PI / 180;
+            const sin = Math.abs(Math.sin(radians));
+            const cos = Math.abs(Math.cos(radians));
+            
+            // 计算旋转后的图片尺寸
+            const rotatedWidth = img.width * cos + img.height * sin;
+            const rotatedHeight = img.width * sin + img.height * cos;
+            
+            rotatedCanvas.width = rotatedWidth;
+            rotatedCanvas.height = rotatedHeight;
+            
+            rotatedCtx.translate(rotatedWidth / 2, rotatedHeight / 2);
+            rotatedCtx.rotate(radians);
+            rotatedCtx.drawImage(img, -img.width / 2, -img.height / 2);
+        } else {
+            rotatedCanvas.width = img.width;
+            rotatedCanvas.height = img.height;
+            rotatedCtx.drawImage(img, 0, 0);
+        }
+        
+        // 计算显示的图片在wrapper中的位置和缩放比例
+        const displayedImgWidth = cropImage.offsetWidth;
+        const displayedImgHeight = cropImage.offsetHeight;
+        
+        // 图片在wrapper中居中显示
+        const imgOffsetX = (wrapper.offsetWidth - displayedImgWidth) / 2;
+        const imgOffsetY = (wrapper.offsetHeight - displayedImgHeight) / 2;
+        
+        // 计算裁剪框相对于显示图片的位置
+        const cropRelativeX = boxLeft - imgOffsetX;
+        const cropRelativeY = boxTop - imgOffsetY;
+        
+        // 计算缩放比例
+        const scaleX = rotatedCanvas.width / displayedImgWidth;
+        const scaleY = rotatedCanvas.height / displayedImgHeight;
+        
+        // 计算实际裁剪区域
+        const sx = Math.max(0, cropRelativeX * scaleX);
+        const sy = Math.max(0, cropRelativeY * scaleY);
         const sw = boxWidth * scaleX;
         const sh = boxHeight * scaleY;
         
-        // 创建canvas进行裁剪
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = sw;
-        tempCanvas.height = sh;
-        const ctx = tempCanvas.getContext('2d');
+        // 创建最终输出canvas
+        const outputCanvas = document.createElement('canvas');
+        outputCanvas.width = boxWidth * 2; // 2倍分辨率
+        outputCanvas.height = boxHeight * 2;
+        const outputCtx = outputCanvas.getContext('2d');
         
-        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        outputCtx.drawImage(rotatedCanvas, sx, sy, sw, sh, 0, 0, outputCanvas.width, outputCanvas.height);
         
-        const croppedData = tempCanvas.toDataURL('image/png');
+        const croppedData = outputCanvas.toDataURL('image/png');
         cropCallback(croppedData);
         closeCropModal();
     };
@@ -976,14 +1042,16 @@ function doCropDrag(e) {
     let newLeft = cropBoxStartX + dx;
     let newTop = cropBoxStartY + dy;
     
-    // 限制在图片范围内
-    const imgWidth = cropImage.offsetWidth;
-    const imgHeight = cropImage.offsetHeight;
+    // 获取wrapper尺寸限制移动范围
+    const wrapper = document.getElementById('cropImageWrapper');
+    const wrapperWidth = wrapper.offsetWidth;
+    const wrapperHeight = wrapper.offsetHeight;
     const boxWidth = parseFloat(cropBox.style.width);
     const boxHeight = parseFloat(cropBox.style.height);
     
-    newLeft = Math.max(0, Math.min(newLeft, imgWidth - boxWidth));
-    newTop = Math.max(0, Math.min(newTop, imgHeight - boxHeight));
+    // 限制在wrapper范围内
+    newLeft = Math.max(0, Math.min(newLeft, wrapperWidth - boxWidth));
+    newTop = Math.max(0, Math.min(newTop, wrapperHeight - boxHeight));
     
     cropBox.style.left = newLeft + 'px';
     cropBox.style.top = newTop + 'px';
@@ -1000,115 +1068,6 @@ function stopCropDrag() {
     document.removeEventListener('touchend', stopCropDrag);
 }
 
-/**
- * 开始缩放裁剪框
- */
-function startCropResize(e, handle) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    isResizingCrop = true;
-    resizeHandle = handle;
-    
-    if (e.type === 'mousedown') {
-        cropStartX = e.clientX;
-        cropStartY = e.clientY;
-    } else {
-        cropStartX = e.touches[0].clientX;
-        cropStartY = e.touches[0].clientY;
-    }
-    
-    cropBoxStartX = parseFloat(cropBox.style.left);
-    cropBoxStartY = parseFloat(cropBox.style.top);
-    cropBoxStartW = parseFloat(cropBox.style.width);
-    cropBoxStartH = parseFloat(cropBox.style.height);
-    
-    document.addEventListener('mousemove', doCropResize);
-    document.addEventListener('mouseup', stopCropResize);
-    document.addEventListener('touchmove', doCropResize, { passive: false });
-    document.addEventListener('touchend', stopCropResize);
-}
-
-/**
- * 缩放裁剪框中
- */
-function doCropResize(e) {
-    if (!isResizingCrop) return;
-    e.preventDefault();
-    
-    let clientX, clientY;
-    if (e.type === 'mousemove') {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    } else {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    }
-    
-    const dx = clientX - cropStartX;
-    const dy = clientY - cropStartY;
-    
-    const imgWidth = cropImage.offsetWidth;
-    const imgHeight = cropImage.offsetHeight;
-    
-    let newLeft = cropBoxStartX;
-    let newTop = cropBoxStartY;
-    let newWidth = cropBoxStartW;
-    let newHeight = cropBoxStartH;
-    
-    const handleClass = resizeHandle.className;
-    
-    if (handleClass.includes('se')) {
-        newWidth = Math.max(50, cropBoxStartW + dx);
-        newHeight = Math.max(50, cropBoxStartH + dy);
-    } else if (handleClass.includes('sw')) {
-        newLeft = cropBoxStartX + dx;
-        newWidth = Math.max(50, cropBoxStartW - dx);
-        newHeight = Math.max(50, cropBoxStartH + dy);
-    } else if (handleClass.includes('ne')) {
-        newTop = cropBoxStartY + dy;
-        newWidth = Math.max(50, cropBoxStartW + dx);
-        newHeight = Math.max(50, cropBoxStartH - dy);
-    } else if (handleClass.includes('nw')) {
-        newLeft = cropBoxStartX + dx;
-        newTop = cropBoxStartY + dy;
-        newWidth = Math.max(50, cropBoxStartW - dx);
-        newHeight = Math.max(50, cropBoxStartH - dy);
-    }
-    
-    // 限制在图片范围内
-    if (newLeft < 0) {
-        newWidth += newLeft;
-        newLeft = 0;
-    }
-    if (newTop < 0) {
-        newHeight += newTop;
-        newTop = 0;
-    }
-    if (newLeft + newWidth > imgWidth) {
-        newWidth = imgWidth - newLeft;
-    }
-    if (newTop + newHeight > imgHeight) {
-        newHeight = imgHeight - newTop;
-    }
-    
-    cropBox.style.left = newLeft + 'px';
-    cropBox.style.top = newTop + 'px';
-    cropBox.style.width = newWidth + 'px';
-    cropBox.style.height = newHeight + 'px';
-}
-
-/**
- * 停止缩放裁剪框
- */
-function stopCropResize() {
-    isResizingCrop = false;
-    resizeHandle = null;
-    document.removeEventListener('mousemove', doCropResize);
-    document.removeEventListener('mouseup', stopCropResize);
-    document.removeEventListener('touchmove', doCropResize);
-    document.removeEventListener('touchend', stopCropResize);
-}
 
 // ==================== 样式选择功能 ====================
 /**
@@ -1255,9 +1214,9 @@ function applyLayout(option) {
     const wallWidth = photoWall.offsetWidth;
     const wallHeight = photoWall.offsetHeight;
     
-    // 计算照片尺寸（包括padding）
-    const photoWidth = 220;
-    const photoHeight = 270;
+    // 计算照片尺寸（相纸尺寸）
+    const photoWidth = POLAROID_WIDTH;
+    const photoHeight = POLAROID_HEIGHT;
     
     // 根据不同模板计算位置
     const positions = calculateLayoutPositions(layout, photos.length, wallWidth, wallHeight, photoWidth, photoHeight);
@@ -1558,6 +1517,52 @@ function addPhotoToWall(imageData) {
     img.className = 'polaroid-img';
     img.src = imageData;
     
+    // 创建底部文字区域
+    const captionArea = document.createElement('div');
+    captionArea.className = 'polaroid-caption';
+    
+    // 文字输入容器（包含输入框和样式按钮）
+    const captionRow = document.createElement('div');
+    captionRow.className = 'caption-row';
+    
+    // 文字输入框
+    const captionInput = document.createElement('input');
+    captionInput.type = 'text';
+    captionInput.className = 'caption-input';
+    captionInput.placeholder = '写点什么...';
+    captionInput.maxLength = 20;
+    // 阻止拖拽事件冒泡，让输入框可以正常使用
+    captionInput.addEventListener('mousedown', (e) => e.stopPropagation());
+    captionInput.addEventListener('touchstart', (e) => e.stopPropagation());
+    
+    // 文字样式按钮
+    const styleBtn = document.createElement('button');
+    styleBtn.className = 'caption-style-btn';
+    styleBtn.innerHTML = '🎨';
+    styleBtn.title = '文字样式';
+    styleBtn.addEventListener('mousedown', (e) => e.stopPropagation());
+    styleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCaptionStyleModal(polaroid);
+    });
+    
+    captionRow.appendChild(captionInput);
+    captionRow.appendChild(styleBtn);
+    
+    // 日期输入框（可编辑）
+    const dateInput = document.createElement('input');
+    dateInput.type = 'text';
+    dateInput.className = 'caption-date-input';
+    const now = new Date();
+    dateInput.value = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+    dateInput.placeholder = '日期（可选）';
+    dateInput.maxLength = 15;
+    dateInput.addEventListener('mousedown', (e) => e.stopPropagation());
+    dateInput.addEventListener('touchstart', (e) => e.stopPropagation());
+    
+    captionArea.appendChild(captionRow);
+    captionArea.appendChild(dateInput);
+    
     // 创建控制按钮
     const controls = document.createElement('div');
     controls.className = 'polaroid-controls';
@@ -1621,6 +1626,7 @@ function addPhotoToWall(imageData) {
     
     // 组装元素
     inner.appendChild(img);
+    inner.appendChild(captionArea);
     polaroid.appendChild(inner);
     polaroid.appendChild(controls);
     polaroid.appendChild(rotateHandle);
@@ -1918,11 +1924,10 @@ function startPhotoResize(e, element, handle) {
         resizePhotoStartY = e.touches[0].clientY;
     }
     
-    // 获取当前尺寸
-    const inner = element.querySelector('.polaroid-inner');
-    const img = element.querySelector('.polaroid-img');
-    resizePhotoStartW = img.offsetWidth;
-    resizePhotoStartH = img.offsetHeight;
+    // 获取当前缩放比例
+    const currentScale = parseFloat(element.dataset.scale) || 1;
+    resizePhotoStartW = POLAROID_WIDTH * currentScale;
+    resizePhotoStartH = POLAROID_HEIGHT * currentScale;
     resizePhotoStartLeft = parseFloat(element.style.left) || 0;
     resizePhotoStartTop = parseFloat(element.style.top) || 0;
     
@@ -1951,40 +1956,67 @@ function doPhotoResize(e) {
     const dx = clientX - resizePhotoStartX;
     const dy = clientY - resizePhotoStartY;
     
-    // 保持正方形比例，使用较大的变化量
-    const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
-    
     const handleClass = resizePhotoHandle.className;
-    let newSize = resizePhotoStartW;
+    
+    // 保持相纸宽高比例 (170:250)
+    const aspectRatio = POLAROID_WIDTH / POLAROID_HEIGHT;
+    let newWidth = resizePhotoStartW;
+    let newHeight = resizePhotoStartH;
     let newLeft = resizePhotoStartLeft;
     let newTop = resizePhotoStartTop;
     
-    // 根据不同角落计算新尺寸
+    // 根据不同角落计算新尺寸，保持比例
+    // 最小尺寸为原始尺寸 170x250，最大为2倍
+    const minWidth = POLAROID_WIDTH;
+    const maxWidth = POLAROID_WIDTH * 2;
+    
     if (handleClass.includes('se')) {
-        newSize = Math.max(80, Math.min(400, resizePhotoStartW + delta));
+        // 使用较大的变化量来计算
+        const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy * aspectRatio;
+        newWidth = Math.max(minWidth, Math.min(maxWidth, resizePhotoStartW + delta));
+        newHeight = newWidth / aspectRatio;
     } else if (handleClass.includes('sw')) {
-        newSize = Math.max(80, Math.min(400, resizePhotoStartW - dx));
-        newLeft = resizePhotoStartLeft + (resizePhotoStartW - newSize);
+        const delta = Math.abs(dx) > Math.abs(dy) ? -dx : dy * aspectRatio;
+        newWidth = Math.max(minWidth, Math.min(maxWidth, resizePhotoStartW + delta));
+        newHeight = newWidth / aspectRatio;
+        newLeft = resizePhotoStartLeft + (resizePhotoStartW - newWidth);
     } else if (handleClass.includes('ne')) {
-        newSize = Math.max(80, Math.min(400, resizePhotoStartW + dx));
-        newTop = resizePhotoStartTop + (resizePhotoStartH - newSize);
+        const delta = Math.abs(dx) > Math.abs(dy) ? dx : -dy * aspectRatio;
+        newWidth = Math.max(minWidth, Math.min(maxWidth, resizePhotoStartW + delta));
+        newHeight = newWidth / aspectRatio;
+        newTop = resizePhotoStartTop + (resizePhotoStartH - newHeight);
     } else if (handleClass.includes('nw')) {
-        newSize = Math.max(80, Math.min(400, resizePhotoStartW - delta));
-        newLeft = resizePhotoStartLeft + (resizePhotoStartW - newSize);
-        newTop = resizePhotoStartTop + (resizePhotoStartH - newSize);
+        const delta = Math.abs(dx) > Math.abs(dy) ? -dx : -dy * aspectRatio;
+        newWidth = Math.max(minWidth, Math.min(maxWidth, resizePhotoStartW + delta));
+        newHeight = newWidth / aspectRatio;
+        newLeft = resizePhotoStartLeft + (resizePhotoStartW - newWidth);
+        newTop = resizePhotoStartTop + (resizePhotoStartH - newHeight);
     }
     
-    // 应用新尺寸
-    const img = resizingPhoto.querySelector('.polaroid-img');
-    img.style.width = newSize + 'px';
-    img.style.height = newSize + 'px';
+    // 计算缩放比例
+    const scale = newWidth / POLAROID_WIDTH;
+    
+    // 应用新尺寸到相纸 - 使用transform缩放整个相纸
+    const inner = resizingPhoto.querySelector('.polaroid-inner');
+    inner.style.transform = `scale(${scale})`;
+    inner.style.transformOrigin = 'top left';
     
     // 更新位置
     resizingPhoto.style.left = newLeft + 'px';
     resizingPhoto.style.top = newTop + 'px';
     
-    // 保存当前尺寸到dataset
-    resizingPhoto.dataset.photoSize = newSize;
+    // 更新缩放手柄位置
+    updateResizeHandlePositions(resizingPhoto, scale);
+    
+    // 更新旋转手柄位置
+    const rotateHandle = resizingPhoto.querySelector('.rotate-handle');
+    if (rotateHandle) {
+        rotateHandle.style.bottom = (-30) + 'px';
+        rotateHandle.style.left = (newWidth / 2) + 'px';
+    }
+    
+    // 保存当前缩放比例到dataset
+    resizingPhoto.dataset.scale = scale;
 }
 
 /**
@@ -2001,6 +2033,40 @@ function stopPhotoResize() {
     document.removeEventListener('touchend', stopPhotoResize);
 }
 
+/**
+ * 更新缩放手柄位置
+ */
+function updateResizeHandlePositions(polaroid, scale) {
+    const scaledWidth = POLAROID_WIDTH * scale;
+    const scaledHeight = POLAROID_HEIGHT * scale;
+    
+    const handleNW = polaroid.querySelector('.resize-handle-nw');
+    const handleNE = polaroid.querySelector('.resize-handle-ne');
+    const handleSW = polaroid.querySelector('.resize-handle-sw');
+    const handleSE = polaroid.querySelector('.resize-handle-se');
+    
+    if (handleNW) {
+        handleNW.style.top = '-8px';
+        handleNW.style.left = '-8px';
+    }
+    if (handleNE) {
+        handleNE.style.top = '-8px';
+        handleNE.style.left = (scaledWidth - 8) + 'px';
+        handleNE.style.right = 'auto';
+    }
+    if (handleSW) {
+        handleSW.style.top = (scaledHeight - 8) + 'px';
+        handleSW.style.bottom = 'auto';
+        handleSW.style.left = '-8px';
+    }
+    if (handleSE) {
+        handleSE.style.top = (scaledHeight - 8) + 'px';
+        handleSE.style.bottom = 'auto';
+        handleSE.style.left = (scaledWidth - 8) + 'px';
+        handleSE.style.right = 'auto';
+    }
+}
+
 // ==================== 导出功能 ====================
 /**
  * 保存单张照片（使用Canvas绘制，确保像素正确）
@@ -2011,11 +2077,13 @@ async function savePhoto(polaroid) {
     try {
         const img = polaroid.querySelector('.polaroid-img');
         const inner = polaroid.querySelector('.polaroid-inner');
+        const captionInput = polaroid.querySelector('.caption-input');
+        const dateSpan = polaroid.querySelector('.caption-date');
         
         // 创建导出用的canvas
         const exportCanvas = document.createElement('canvas');
-        const totalWidth = PHOTO_WIDTH + FRAME_PADDING_SIDE * 2;
-        const totalHeight = PHOTO_HEIGHT + FRAME_PADDING_TOP + FRAME_PADDING_BOTTOM;
+        const totalWidth = POLAROID_WIDTH;
+        const totalHeight = POLAROID_HEIGHT;
         
         exportCanvas.width = totalWidth * 2; // 2倍分辨率
         exportCanvas.height = totalHeight * 2;
@@ -2045,6 +2113,34 @@ async function savePhoto(polaroid) {
         
         // 绘制相纸装饰
         await drawFrameDecorations(ctx, inner, totalWidth, totalHeight);
+        
+        // 绘制用户输入的文字
+        if (captionInput && captionInput.value) {
+            // 获取文字样式
+            const fontFamily = captionInput.style.fontFamily || 'Nunito, sans-serif';
+            const fontColor = captionInput.style.color || '#666666';
+            const fontStyle = captionInput.style.fontStyle || 'normal';
+            
+            ctx.font = `${fontStyle} 600 11px ${fontFamily}`;
+            ctx.fillStyle = fontColor;
+            ctx.textAlign = 'center';
+            ctx.fillText(captionInput.value, totalWidth / 2, totalHeight - 20);
+        }
+        
+        // 绘制日期
+        const dateInput = polaroid.querySelector('.caption-date-input');
+        if (dateInput && dateInput.value) {
+            const fontFamily = dateInput.style.fontFamily || 'Nunito, sans-serif';
+            const fontColor = dateInput.style.color || '#999999';
+            const fontStyle = dateInput.style.fontStyle || 'normal';
+            
+            ctx.font = `${fontStyle} 9px ${fontFamily}`;
+            ctx.fillStyle = fontColor;
+            ctx.globalAlpha = parseFloat(dateInput.style.opacity) || 0.7;
+            ctx.textAlign = 'center';
+            ctx.fillText(dateInput.value, totalWidth / 2, totalHeight - 8);
+            ctx.globalAlpha = 1;
+        }
         
         // 下载图片
         const link = document.createElement('a');
@@ -2167,23 +2263,51 @@ async function drawFrameBackground(ctx, inner, width, height) {
  * 绘制相纸装饰
  */
 async function drawFrameDecorations(ctx, inner, width, height) {
-    ctx.font = '18px Arial';
+    // 装饰位置在照片下方，文字输入区上方 (约y=205的位置)
+    const decoY = FRAME_PADDING_TOP + PHOTO_HEIGHT + 12;
     
     if (inner.classList.contains('frame-bear') && !inner.getAttribute('data-custom')) {
-        ctx.font = '18px Arial';
-        ctx.fillText('🧸', 12, height - 10);
-        ctx.font = '10px Arial';
-        ctx.fillText('🐾 🐾 🐾', width - 50, height - 10);
+        ctx.font = '16px Arial';
+        ctx.fillText('🧸', 10, decoY);
+        ctx.font = '9px Arial';
+        ctx.fillText('🐾 🐾', width - 35, decoY);
     } else if (inner.classList.contains('frame-rainbow') && !inner.getAttribute('data-custom')) {
-        ctx.font = '20px Arial';
-        ctx.fillText('🌈', 12, height - 8);
-        ctx.font = '12px Arial';
-        ctx.fillText('✨💖✨', width - 55, height - 10);
+        ctx.font = '16px Arial';
+        ctx.fillText('🌈', 10, decoY);
+        ctx.font = '11px Arial';
+        ctx.fillText('✨💖', width - 35, decoY);
     } else if (inner.classList.contains('frame-flower') && !inner.getAttribute('data-custom')) {
-        ctx.font = '18px Arial';
-        ctx.fillText('🌸', 12, height - 10);
+        ctx.font = '16px Arial';
+        ctx.fillText('🌸', 10, decoY);
         ctx.font = '14px Arial';
-        ctx.fillText('🌸 🌸', width - 55, height - 10);
+        ctx.fillText('🌸', width - 25, decoY);
+    } else if (inner.classList.contains('frame-ocean') && !inner.getAttribute('data-custom')) {
+        ctx.font = '16px Arial';
+        ctx.fillText('🐚', 10, decoY);
+        ctx.font = '14px Arial';
+        ctx.fillText('🐠', width - 25, decoY);
+    } else if (inner.classList.contains('frame-candy') && !inner.getAttribute('data-custom')) {
+        ctx.font = '16px Arial';
+        ctx.fillText('🍬', 10, decoY);
+        ctx.font = '14px Arial';
+        ctx.fillText('🍭', width - 25, decoY);
+    } else if (inner.classList.contains('frame-lavender') && !inner.getAttribute('data-custom')) {
+        ctx.font = '16px Arial';
+        ctx.fillText('💜', 10, decoY);
+        ctx.font = '14px Arial';
+        ctx.fillStyle = '#9C27B0';
+        ctx.fillText('✿', width - 25, decoY);
+        ctx.fillStyle = '#000';
+    } else if (inner.classList.contains('frame-lemon') && !inner.getAttribute('data-custom')) {
+        ctx.font = '16px Arial';
+        ctx.fillText('🍋', 10, decoY);
+        ctx.font = '14px Arial';
+        ctx.fillText('☀️', width - 25, decoY);
+    } else if (inner.classList.contains('frame-mint') && !inner.getAttribute('data-custom')) {
+        ctx.font = '16px Arial';
+        ctx.fillText('🍃', 10, decoY);
+        ctx.font = '14px Arial';
+        ctx.fillText('🌿', width - 25, decoY);
     }
 }
 
@@ -2268,6 +2392,171 @@ function deletePhoto(polaroid) {
             console.log('✅ 照片已删除');
         }, 300);
     }
+}
+
+// ==================== 文字样式弹窗功能 ====================
+/**
+ * 初始化文字样式弹窗
+ */
+function initCaptionStyleModal() {
+    if (!captionStyleModal) return;
+    
+    const closeBtn = document.getElementById('closeCaptionStyleModal');
+    const cancelBtn = document.getElementById('cancelCaptionStyle');
+    const applyBtn = document.getElementById('applyCaptionStyle');
+    const colorPicker = document.getElementById('captionColorPicker');
+    const colorValue = document.getElementById('captionColorValue');
+    const preview = document.getElementById('captionPreview');
+    
+    // 关闭弹窗
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeCaptionStyleModal);
+    }
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeCaptionStyleModal);
+    }
+    captionStyleModal.addEventListener('click', (e) => {
+        if (e.target === captionStyleModal) closeCaptionStyleModal();
+    });
+    
+    // 字体选择
+    document.querySelectorAll('.font-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.font-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            selectedFont = option.dataset.font;
+            updateCaptionPreview();
+        });
+    });
+    
+    // 颜色选择
+    document.querySelectorAll('.text-color-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.text-color-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            selectedColor = option.dataset.color;
+            if (colorPicker) colorPicker.value = selectedColor;
+            if (colorValue) colorValue.textContent = selectedColor;
+            updateCaptionPreview();
+        });
+    });
+    
+    // 自定义颜色
+    if (colorPicker) {
+        colorPicker.addEventListener('input', (e) => {
+            selectedColor = e.target.value;
+            if (colorValue) colorValue.textContent = selectedColor.toUpperCase();
+            document.querySelectorAll('.text-color-option').forEach(o => o.classList.remove('active'));
+            updateCaptionPreview();
+        });
+    }
+    
+    // 倾斜选择
+    document.querySelectorAll('.italic-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.italic-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            selectedItalic = option.dataset.italic;
+            updateCaptionPreview();
+        });
+    });
+    
+    // 应用样式
+    if (applyBtn) {
+        applyBtn.addEventListener('click', applyCaptionStyle);
+    }
+}
+
+/**
+ * 打开文字样式弹窗
+ */
+function openCaptionStyleModal(polaroid) {
+    currentStylePolaroid = polaroid;
+    
+    // 获取当前样式
+    const captionInput = polaroid.querySelector('.caption-input');
+    if (captionInput) {
+        // 读取当前样式
+        const currentFont = captionInput.style.fontFamily || "'Nunito', sans-serif";
+        const currentColor = captionInput.style.color || '#666666';
+        const currentItalic = captionInput.style.fontStyle || 'normal';
+        
+        selectedFont = currentFont;
+        selectedColor = currentColor;
+        selectedItalic = currentItalic;
+        
+        // 更新选中状态
+        document.querySelectorAll('.font-option').forEach(o => {
+            o.classList.toggle('active', o.dataset.font === currentFont);
+        });
+        
+        document.querySelectorAll('.text-color-option').forEach(o => {
+            o.classList.toggle('active', o.dataset.color.toLowerCase() === currentColor.toLowerCase());
+        });
+        
+        document.querySelectorAll('.italic-option').forEach(o => {
+            o.classList.toggle('active', o.dataset.italic === currentItalic);
+        });
+        
+        // 更新颜色选择器
+        const colorPicker = document.getElementById('captionColorPicker');
+        const colorValue = document.getElementById('captionColorValue');
+        if (colorPicker) colorPicker.value = currentColor;
+        if (colorValue) colorValue.textContent = currentColor.toUpperCase();
+        
+        // 更新预览
+        updateCaptionPreview();
+    }
+    
+    captionStyleModal.style.display = 'flex';
+}
+
+/**
+ * 关闭文字样式弹窗
+ */
+function closeCaptionStyleModal() {
+    captionStyleModal.style.display = 'none';
+    currentStylePolaroid = null;
+}
+
+/**
+ * 更新预览
+ */
+function updateCaptionPreview() {
+    const preview = document.getElementById('captionPreview');
+    if (preview) {
+        preview.style.fontFamily = selectedFont;
+        preview.style.color = selectedColor;
+        preview.style.fontStyle = selectedItalic;
+    }
+}
+
+/**
+ * 应用文字样式
+ */
+function applyCaptionStyle() {
+    if (!currentStylePolaroid) return;
+    
+    const captionInput = currentStylePolaroid.querySelector('.caption-input');
+    const dateInput = currentStylePolaroid.querySelector('.caption-date-input');
+    
+    if (captionInput) {
+        captionInput.style.fontFamily = selectedFont;
+        captionInput.style.color = selectedColor;
+        captionInput.style.fontStyle = selectedItalic;
+    }
+    
+    // 日期也应用相同颜色（稍微淡一点）
+    if (dateInput) {
+        dateInput.style.fontFamily = selectedFont;
+        dateInput.style.fontStyle = selectedItalic;
+        // 日期颜色稍微淡一点
+        dateInput.style.color = selectedColor;
+        dateInput.style.opacity = '0.7';
+    }
+    
+    console.log('✅ 文字样式已应用');
+    closeCaptionStyleModal();
 }
 
 // ==================== 错误处理 ====================

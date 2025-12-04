@@ -1,6 +1,8 @@
 /* ==================== 导入可爱字体 ==================== */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
+/* todo 添加 "'Permanent Marker', cursive" 字体 */
+
 /* ==================== 全局样式 ==================== */
 * {
     margin: 0;
@@ -1490,12 +1492,16 @@ body {
 
 /* 可爱相纸样式 */
 .polaroid-inner {
-    padding: 10px 10px 45px 10px;
+    width: 170px;
+    height: 250px;
+    padding: 10px 10px 60px 10px;
     box-shadow: 
         0 8px 25px rgba(0, 0, 0, 0.25),
         0 0 0 1px rgba(255, 255, 255, 0.5);
-    border-radius: 6px;
+    /* border-radius: 6px; */
     position: relative;
+    box-sizing: border-box;
+    transform-origin: top left;
 }
 
 /* 小熊相纸 */
@@ -1507,18 +1513,20 @@ body {
 .polaroid-inner.frame-bear::before {
     content: '🧸';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-bear::after {
-    content: '🐾 🐾 🐾';
+    content: '🐾🐾';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 10px;
-    letter-spacing: 2px;
+    top: 194px;
+    right: 8px;
+    font-size: 8px;
+    letter-spacing: 1px;
+    z-index: 1;
 }
 
 /* 彩虹相纸 */
@@ -1537,17 +1545,19 @@ body {
 .polaroid-inner.frame-rainbow::before {
     content: '🌈';
     position: absolute;
-    bottom: 6px;
-    left: 12px;
-    font-size: 20px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-rainbow::after {
-    content: '✨💖✨';
+    content: '✨💖';
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 12px;
+    top: 194px;
+    right: 8px;
+    font-size: 10px;
+    z-index: 1;
 }
 
 /* 樱花相纸 */
@@ -1559,18 +1569,19 @@ body {
 .polaroid-inner.frame-flower::before {
     content: '🌸';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-flower::after {
-    content: '🌸 🌸';
+    content: '🌸';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
+    top: 192px;
+    right: 8px;
     font-size: 14px;
-    letter-spacing: 4px;
+    z-index: 1;
 }
 
 /* 自定义相纸 */
@@ -1588,17 +1599,19 @@ body {
 .polaroid-inner.frame-ocean::before {
     content: '🐚';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-ocean::after {
-    content: '🌊 🐠';
+    content: '🐠';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 12px;
+    top: 192px;
+    right: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 /* 糖果屋相纸 */
@@ -1610,17 +1623,19 @@ body {
 .polaroid-inner.frame-candy::before {
     content: '🍬';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-candy::after {
-    content: '🍭🍫';
+    content: '🍭';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 12px;
+    top: 192px;
+    right: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 /* 薰衣草相纸 */
@@ -1632,18 +1647,20 @@ body {
 .polaroid-inner.frame-lavender::before {
     content: '💜';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-lavender::after {
-    content: '✿ ✿';
+    content: '✿';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 12px;
+    top: 192px;
+    right: 8px;
+    font-size: 14px;
     color: #9C27B0;
+    z-index: 1;
 }
 
 /* 柠檬黄相纸 */
@@ -1655,17 +1672,19 @@ body {
 .polaroid-inner.frame-lemon::before {
     content: '🍋';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-lemon::after {
-    content: '☀️✨';
+    content: '☀️';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 12px;
+    top: 192px;
+    right: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 /* 薄荷绿相纸 */
@@ -1677,17 +1696,19 @@ body {
 .polaroid-inner.frame-mint::before {
     content: '🍃';
     position: absolute;
-    bottom: 8px;
-    left: 12px;
-    font-size: 18px;
+    top: 192px;
+    left: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 .polaroid-inner.frame-mint::after {
-    content: '🌿🌱';
+    content: '🌿';
     position: absolute;
-    bottom: 12px;
-    right: 12px;
-    font-size: 12px;
+    top: 192px;
+    right: 8px;
+    font-size: 14px;
+    z-index: 1;
 }
 
 /* 纯色相纸样式 */
@@ -1699,12 +1720,119 @@ body {
 }
 
 .polaroid-img {
-    width: 180px;
+    width: 150px;
     height: 180px;
     object-fit: cover;
     display: block;
+    /* border-radius: 3px; */
+    /* box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1); */
+}
+
+/* 相纸底部文字输入区域 */
+.polaroid-caption {
+    position: absolute;
+    bottom: 3px;
+    left: 5px;
+    right: 5px;
+    height: 42px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    z-index: 2;
+}
+
+.caption-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 2px;
+}
+
+.caption-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-family: 'Nunito', 'Comic Sans MS', cursive;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.caption-input:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.caption-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.caption-input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
+.caption-style-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.caption-row:hover .caption-style-btn,
+.caption-input:focus + .caption-style-btn,
+.caption-style-btn:focus {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.caption-style-btn:hover {
+    background: rgba(255, 154, 158, 0.8);
+    transform: scale(1.1);
+}
+
+.caption-date-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 9px;
+    color: #999;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    padding: 1px 4px;
     border-radius: 3px;
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+    transition: background 0.2s ease;
+}
+
+.caption-date-input:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.caption-date-input:focus {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.caption-date-input::placeholder {
+    color: #bbb;
+    font-style: italic;
 }
 
 /* 照片控制按钮 */
@@ -2037,7 +2165,17 @@ body {
 
 /* ==================== 图片裁剪弹窗样式 ==================== */
 .crop-modal-content {
-    max-width: 500px;
+    max-width: 550px;
+}
+
+.crop-tips {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 154, 158, 0.1);
+    border-radius: 8px;
 }
 
 .crop-container {
@@ -2047,9 +2185,9 @@ body {
 .crop-image-wrapper {
     position: relative;
     width: 100%;
-    max-height: 400px;
+    height: 350px;
     overflow: hidden;
-    background: #f0f0f0;
+    background: #1a1a1a;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -2058,35 +2196,252 @@ body {
 
 #cropImage {
     max-width: 100%;
-    max-height: 400px;
+    max-height: 100%;
     display: block;
     user-select: none;
     -webkit-user-drag: none;
+    transform-origin: center center;
+    transition: transform 0.1s ease;
 }
 
 .crop-box {
     position: absolute;
-    border: 3px dashed #FF9A9E;
-    background: rgba(255, 154, 158, 0.1);
+    width: 170px;
+    height: 250px;
+    border: 3px solid #FF9A9E;
+    background: transparent;
     cursor: move;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    pointer-events: auto;
 }
 
-.crop-handle {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: #FF9A9E;
-    border: 2px solid white;
+.crop-box-inner {
+    width: 100%;
+    height: 100%;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* 旋转控制 */
+.crop-rotate-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 154, 158, 0.1);
+    border-radius: 10px;
+}
+
+.rotate-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+}
+
+.rotate-slider {
+    width: 180px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(90deg, #FFB6C1, #FF69B4);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.rotate-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    border: 3px solid white;
     border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
 }
 
-.crop-handle-nw { top: -8px; left: -8px; cursor: nw-resize; }
-.crop-handle-ne { top: -8px; right: -8px; cursor: ne-resize; }
-.crop-handle-sw { bottom: -8px; left: -8px; cursor: sw-resize; }
-.crop-handle-se { bottom: -8px; right: -8px; cursor: se-resize; }
+.rotate-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.rotate-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.rotate-value {
+    min-width: 45px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #FF69B4;
+    text-align: center;
+}
 
 .crop-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* ==================== 文字样式弹窗 ==================== */
+.caption-style-modal-content {
+    max-width: 380px;
+}
+
+.style-section {
+    margin-bottom: 15px;
+}
+
+.style-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e75480;
+    margin-bottom: 8px;
+}
+
+/* 字体选项 */
+.font-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.font-option {
+    padding: 8px 6px;
+    background: #f8f8f8;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.font-option:hover {
+    background: #fff;
+    border-color: #FFB6C1;
+}
+
+.font-option.active {
+    background: #fff;
+    border-color: #FF9A9E;
+    box-shadow: 0 2px 8px rgba(255, 154, 158, 0.3);
+}
+
+/* 颜色选项 */
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.text-color-option {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-color-option:hover {
+    transform: scale(1.15);
+    border-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-color-option.active {
+    border-color: white;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.5);
+    transform: scale(1.1);
+}
+
+.custom-color-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.custom-color-row input[type="color"] {
+    width: 40px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.custom-color-row span {
+    font-size: 11px;
+    color: #888;
+    font-family: monospace;
+}
+
+/* 倾斜选项 */
+.italic-options {
+    display: flex;
+    gap: 10px;
+}
+
+.italic-option {
+    flex: 1;
+    padding: 10px;
+    background: #f8f8f8;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.italic-option:hover {
+    background: #fff;
+    border-color: #FFB6C1;
+}
+
+.italic-option.active {
+    background: #fff;
+    border-color: #FF9A9E;
+    box-shadow: 0 2px 8px rgba(255, 154, 158, 0.3);
+}
+
+/* 预览区域 */
+.style-preview-section {
+    margin-bottom: 15px;
+}
+
+.caption-preview {
+    padding: 15px;
+    background: linear-gradient(135deg, #FFF5E6 0%, #FFE4C4 100%);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    border: 2px solid #DEB887;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.style-actions {
     display: flex;
     justify-content: center;
     gap: 15px;
