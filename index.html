@@ -139,6 +139,51 @@
                 <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
             </div>
 
+            <!-- 滤镜选择 -->
+            <div class="filter-selection">
+                <div class="section-title">
+                    <span>🎨</span> 选择滤镜效果
+                </div>
+                <div class="filter-options">
+                    <div class="filter-option active" data-filter="original">
+                        <div class="filter-preview">
+                            <span>📷</span>
+                        </div>
+                        <span class="filter-name">原图</span>
+                    </div>
+                    <div class="filter-option" data-filter="vivid">
+                        <div class="filter-preview">
+                            <span>🌈</span>
+                        </div>
+                        <span class="filter-name">鲜艳</span>
+                    </div>
+                    <div class="filter-option" data-filter="film">
+                        <div class="filter-preview">
+                            <span>🎞️</span>
+                        </div>
+                        <span class="filter-name">胶片</span>
+                    </div>
+                    <div class="filter-option" data-filter="bw">
+                        <div class="filter-preview">
+                            <span>흑백</span>
+                        </div>
+                        <span class="filter-name">黑白</span>
+                    </div>
+                    <div class="filter-option" data-filter="warm">
+                        <div class="filter-preview">
+                            <span>☀️</span>
+                        </div>
+                        <span class="filter-name">暖色</span>
+                    </div>
+                    <div class="filter-option" data-filter="cool">
+                        <div class="filter-preview">
+                            <span>❄️</span>
+                        </div>
+                        <span class="filter-name">冷色</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- 相纸样式选择 -->
             <div class="frame-selection">
                 <div class="section-title">
@@ -618,6 +663,7 @@
 
     <!-- 引入html2canvas库用于导出图片 -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="filterProcessor.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -93,11 +93,29 @@ const leftPanel = document.getElementById("leftPanel");
 let isPanelCollapsed = false;
 
 // ==================== 初始化 ====================
+// 初始化滤镜选择功能
+function initFilterSelection() {
+  const filterOptions = document.querySelectorAll('.filter-option');
+  
+  filterOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      // 移除所有选项的active类
+      filterOptions.forEach(opt => opt.classList.remove('active'));
+      
+      // 为点击的选项添加active类
+      option.classList.add('active');
+      
+      console.log('选择了滤镜:', option.dataset.filter);
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🎀 可爱拍立得照片墙已加载！");
   initEventListeners();
   initDecorations();
   initCropModal();
+  initFilterSelection(); // 初始化滤镜选择功能
   
   // 检查是否已有照片，决定是否显示空状态提示
   const photos = photoWall.querySelectorAll(".polaroid");
@@ -773,7 +791,24 @@ function processImageToSquare(imageData, callback) {
     const sy = (img.height - size) / 2;
     ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
 
-    callback(tempCanvas.toDataURL("image/png"));
+    // 获取当前选中的滤镜
+    const activeFilterOption = document.querySelector('.filter-option.active');
+    const filterType = activeFilterOption ? activeFilterOption.dataset.filter : 'original';
+
+    // 如果是原图滤镜，则直接回调
+    if (filterType === 'original') {
+      callback(tempCanvas.toDataURL("image/png"));
+      return;
+    }
+
+    // 应用滤镜效果
+    FilterProcessor.applyFilter(img, filterType).then(filteredCanvas => {
+      callback(filteredCanvas.toDataURL("image/jpeg", 0.92));
+    }).catch(error => {
+      console.error('滤镜应用失败:', error);
+      // 如果滤镜应用失败，仍然使用原图
+      callback(tempCanvas.toDataURL("image/png"));
+    });
   };
   img.src = imageData;
 }
