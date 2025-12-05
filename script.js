@@ -105,9 +105,42 @@ function initFilterSelection() {
       // 为点击的选项添加active类
       option.classList.add('active');
       
-      console.log('选择了滤镜:', option.dataset.filter);
+      // 获取选中的滤镜类型
+      const filterType = option.dataset.filter;
+      console.log('选择了滤镜:', filterType);
+      
+      // 实时更新取景框滤镜效果
+      updateViewfinderFilter(filterType);
     });
   });
+}
+
+// 实时更新取景框滤镜效果
+function updateViewfinderFilter(filterType) {
+  // 移除之前的滤镜类
+  video.classList.remove('filter-vivid', 'filter-film', 'filter-bw', 'filter-warm', 'filter-cool');
+  
+  // 根据滤镜类型添加相应的CSS类
+  switch(filterType) {
+    case 'vivid':
+      video.classList.add('filter-vivid');
+      break;
+    case 'film':
+      video.classList.add('filter-film');
+      break;
+    case 'bw':
+      video.classList.add('filter-bw');
+      break;
+    case 'warm':
+      video.classList.add('filter-warm');
+      break;
+    case 'cool':
+      video.classList.add('filter-cool');
+      break;
+    default:
+      // 原图不需要添加任何滤镜类
+      break;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -611,6 +644,13 @@ async function startCamera() {
       video.classList.add("mirrored");
     }
 
+    // 应用当前选中的滤镜
+    const activeFilterOption = document.querySelector('.filter-option.active');
+    if (activeFilterOption) {
+      const filterType = activeFilterOption.dataset.filter;
+      updateViewfinderFilter(filterType);
+    }
+
     // 更新按钮状态
     startCameraBtn.style.display = "none";
     captureBtn.style.display = "inline-flex";
@@ -655,13 +695,29 @@ function capturePhoto() {
   // 获取图片数据
   const imageData = canvas.toDataURL("image/png");
 
-  // 不切换到预览模式，保持摄像头继续显示，这样可以连续拍照
-  // previewImg.src = imageData;
-  // video.style.display = 'none';
-  // preview.style.display = 'flex';
+  // 获取当前选中的滤镜
+  const activeFilterOption = document.querySelector('.filter-option.active');
+  const filterType = activeFilterOption ? activeFilterOption.dataset.filter : 'original';
 
-  // 添加到照片墙
-  addPhotoToWall(imageData);
+  // 如果是原图滤镜，则直接添加到照片墙
+  if (filterType === 'original') {
+    // 添加到照片墙
+    addPhotoToWall(imageData);
+  } else {
+    // 将canvas转换为图片并应用滤镜
+    const img = new Image();
+    img.onload = () => {
+      FilterProcessor.applyFilter(img, filterType).then(filteredCanvas => {
+        // 添加滤镜后的图片到照片墙
+        addPhotoToWall(filteredCanvas.toDataURL("image/jpeg", 0.92));
+      }).catch(error => {
+        console.error('滤镜应用失败:', error);
+        // 如果滤镜应用失败，仍然使用原图
+        addPhotoToWall(imageData);
+      });
+    };
+    img.src = imageData;
+  }
 
   // 更新计数器
   updatePhotoCount();

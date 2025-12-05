@@ -509,6 +509,27 @@ body {
     transform: scaleX(-1);
 }
 
+/* 滤镜效果 */
+#video.filter-vivid {
+    filter: saturate(1.3) contrast(1.1);
+}
+
+#video.filter-film {
+    filter: sepia(0.3) brightness(0.95) contrast(1.1);
+}
+
+#video.filter-bw {
+    filter: grayscale(1);
+}
+
+#video.filter-warm {
+    filter: sepia(0.3) hue-rotate(-10deg) saturate(1.2);
+}
+
+#video.filter-cool {
+    filter: hue-rotate(10deg) saturate(1.1);
+}
+
 .preview-container {
     width: 100%;
     height: 100%;
