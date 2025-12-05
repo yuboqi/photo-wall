@@ -43,7 +43,7 @@ let cropRotation = 0; // 图片旋转角度
 
 // 照片固定尺寸（用于导出）
 const POLAROID_WIDTH = 170; // 相纸总宽度
-const POLAROID_HEIGHT = 250; // 相纸总高度
+const POLAROID_HEIGHT = 240; // 相纸总高度
 const FRAME_PADDING_TOP = 10;
 const FRAME_PADDING_SIDE = 10;
 const FRAME_PADDING_BOTTOM = 60; // 底部留更多空间给文字
@@ -98,6 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
   initEventListeners();
   initDecorations();
   initCropModal();
+  
+  // 检查是否已有照片，决定是否显示空状态提示
+  const photos = photoWall.querySelectorAll(".polaroid");
+  const emptyState = photoWall.querySelector(".empty-state");
+  if (photos.length === 0 && emptyState) {
+    emptyState.style.display = "block";
+  }
 });
 
 // ==================== 事件监听器初始化 ====================
@@ -927,9 +934,9 @@ function openCropModal(imageData, callback) {
     const wrapperWidth = wrapper.offsetWidth;
     const wrapperHeight = wrapper.offsetHeight;
 
-    // 裁剪框固定尺寸为相纸尺寸 170x250
+    // 裁剪框固定尺寸为相纸尺寸 170x240
     const boxWidth = 170;
-    const boxHeight = 250;
+    const boxHeight = 240;
 
     // 将裁剪框居中放置
     const left = (wrapperWidth - boxWidth) / 2;
@@ -1665,11 +1672,21 @@ function addPhotoToWall(imageData) {
   const controls = document.createElement("div");
   controls.className = "polaroid-controls";
 
-  // 保存按钮
+  // 单独保存照片按钮（不带相纸）
+  const savePhotoOnlyBtn = document.createElement("button");
+  savePhotoOnlyBtn.className = "control-btn";
+  savePhotoOnlyBtn.innerHTML = "📷";
+  savePhotoOnlyBtn.title = "保存照片";
+  savePhotoOnlyBtn.onclick = (e) => {
+    e.stopPropagation();
+    savePhotoOnly(polaroid);
+  };
+
+  // 保存相纸按钮
   const saveBtn = document.createElement("button");
   saveBtn.className = "control-btn";
-  saveBtn.innerHTML = "💾";
-  saveBtn.title = "保存这张照片";
+  saveBtn.innerHTML = "🖼️";
+  saveBtn.title = "保存相纸";
   saveBtn.onclick = (e) => {
     e.stopPropagation();
     savePhoto(polaroid);
@@ -1695,6 +1712,7 @@ function addPhotoToWall(imageData) {
     deletePhoto(polaroid);
   };
 
+  controls.appendChild(savePhotoOnlyBtn);
   controls.appendChild(saveBtn);
   controls.appendChild(frameBtn);
   controls.appendChild(deleteBtn);
@@ -2074,7 +2092,7 @@ function doPhotoResize(e) {
 
   const handleClass = resizePhotoHandle.className;
 
-  // 保持相纸宽高比例 (170:250)
+  // 保持相纸宽高比例 (170:240)
   const aspectRatio = POLAROID_WIDTH / POLAROID_HEIGHT;
   let newWidth = resizePhotoStartW;
   let newHeight = resizePhotoStartH;
@@ -2082,7 +2100,7 @@ function doPhotoResize(e) {
   let newTop = resizePhotoStartTop;
 
   // 根据不同角落计算新尺寸，保持比例
-  // 最小尺寸为原始尺寸 170x250，最大为2倍
+  // 最小尺寸为原始尺寸 170x240，最大为2倍
   const minWidth = POLAROID_WIDTH;
   const maxWidth = POLAROID_WIDTH * 2;
 
@@ -2208,18 +2226,29 @@ async function savePhoto(polaroid) {
     const captionInput = polaroid.querySelector(".caption-input");
     const dateSpan = polaroid.querySelector(".caption-date");
 
+    // 获取照片的缩放比例
+    const scale = parseFloat(polaroid.dataset.scale) || 1;
+    
+    // 计算实际尺寸
+    const totalWidth = POLAROID_WIDTH * scale;
+    const totalHeight = POLAROID_HEIGHT * scale;
+    const photoWidth = PHOTO_WIDTH * scale;
+    const photoHeight = PHOTO_HEIGHT * scale;
+    
+    // 计算内边距（按比例调整）
+    const paddingSide = FRAME_PADDING_SIDE * scale;
+    const paddingTop = FRAME_PADDING_TOP * scale;
+    const paddingBottom = FRAME_PADDING_BOTTOM * scale;
+
     // 创建导出用的canvas
     const exportCanvas = document.createElement("canvas");
-    const totalWidth = POLAROID_WIDTH;
-    const totalHeight = POLAROID_HEIGHT;
-
     exportCanvas.width = totalWidth * 2; // 2倍分辨率
     exportCanvas.height = totalHeight * 2;
 
     const ctx = exportCanvas.getContext("2d");
     ctx.scale(2, 2);
 
-    // 绘制相纸背景
+    // 绘制相纸背景（按比例缩放）
     await drawFrameBackground(ctx, inner, totalWidth, totalHeight);
 
     // 绘制照片
@@ -2232,27 +2261,51 @@ async function savePhoto(polaroid) {
       photoImg.src = img.src;
     });
 
+    // 计算居中位置
+    const photoX = paddingSide;
+    const photoY = paddingTop;
+
+    // 保持原始照片的宽高比，就像在卡片中显示一样 (object-fit: cover)
+     const naturalWidth = photoImg.naturalWidth;
+     const naturalHeight = photoImg.naturalHeight;
+     const targetWidth = photoWidth;
+     const targetHeight = photoHeight;
+     
+     let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+     
+     // 计算如何裁剪图片以填充目标区域（保持object-fit: cover效果）
+     const scaleX = targetWidth / naturalWidth;
+     const scaleY = targetHeight / naturalHeight;
+     const imageScale = Math.max(scaleX, scaleY); // 取较大的缩放比例以填满目标区域
+     
+     drawWidth = naturalWidth * imageScale;
+     drawHeight = naturalHeight * imageScale;
+     
+     // 计算偏移量以居中显示
+     offsetX = (targetWidth - drawWidth) / 2;
+     offsetY = (targetHeight - drawHeight) / 2;
+
     // 绘制照片（带圆角）
     ctx.save();
     roundRect(
       ctx,
-      FRAME_PADDING_SIDE,
-      FRAME_PADDING_TOP,
-      PHOTO_WIDTH,
-      PHOTO_HEIGHT,
-      3
+      photoX,
+      photoY,
+      photoWidth,
+      photoHeight,
+      3 * scale
     );
     ctx.clip();
     ctx.drawImage(
       photoImg,
-      FRAME_PADDING_SIDE,
-      FRAME_PADDING_TOP,
-      PHOTO_WIDTH,
-      PHOTO_HEIGHT
+      photoX + offsetX,
+      photoY + offsetY,
+      drawWidth,
+      drawHeight
     );
     ctx.restore();
 
-    // 绘制相纸装饰
+    // 绘制相纸装饰（按比例缩放）
     await drawFrameDecorations(ctx, inner, totalWidth, totalHeight);
 
     // 绘制用户输入的文字
@@ -2262,10 +2315,11 @@ async function savePhoto(polaroid) {
       const fontColor = captionInput.style.color || "#666666";
       const fontStyle = captionInput.style.fontStyle || "normal";
 
-      ctx.font = `${fontStyle} 600 11px ${fontFamily}`;
+      ctx.font = `${fontStyle} 600 ${11 * scale}px ${fontFamily}`;
       ctx.fillStyle = fontColor;
       ctx.textAlign = "center";
-      ctx.fillText(captionInput.value, totalWidth / 2, totalHeight - 20);
+      // 调整文字位置，使其更靠近相纸底部但不过于靠下
+      ctx.fillText(captionInput.value, totalWidth / 2, totalHeight - 35 * scale);
     }
 
     // 绘制日期
@@ -2275,11 +2329,12 @@ async function savePhoto(polaroid) {
       const fontColor = dateInput.style.color || "#999999";
       const fontStyle = dateInput.style.fontStyle || "normal";
 
-      ctx.font = `${fontStyle} 9px ${fontFamily}`;
+      ctx.font = `${fontStyle} ${9 * scale}px ${fontFamily}`;
       ctx.fillStyle = fontColor;
       ctx.globalAlpha = parseFloat(dateInput.style.opacity) || 0.7;
       ctx.textAlign = "center";
-      ctx.fillText(dateInput.value, totalWidth / 2, totalHeight - 8);
+      // 调整日期位置，使其更靠近相纸底部但不过于靠下
+      ctx.fillText(dateInput.value, totalWidth / 2, totalHeight - 20 * scale);
       ctx.globalAlpha = 1;
     }
 
@@ -2317,9 +2372,10 @@ function roundRect(ctx, x, y, width, height, radius) {
  * 绘制相纸背景
  */
 async function drawFrameBackground(ctx, inner, width, height) {
-  // 绘制圆角矩形背景
+  // 绘制矩形背景（无圆角）
   ctx.save();
-  roundRect(ctx, 0, 0, width, height, 6);
+  ctx.beginPath();
+  ctx.rect(0, 0, width, height);
   ctx.clip();
 
   // 检查是否是自定义背景
@@ -2350,10 +2406,11 @@ async function drawFrameBackground(ctx, inner, width, height) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // 边框
+    // 边框（无圆角）
     ctx.strokeStyle = "#DEB887";
     ctx.lineWidth = 2;
-    roundRect(ctx, 1, 1, width - 2, height - 2, 6);
+    ctx.beginPath();
+    ctx.rect(1, 1, width - 2, height - 2);
     ctx.stroke();
   } else if (inner.classList.contains("frame-rainbow")) {
     // 彩虹相纸
@@ -2372,7 +2429,8 @@ async function drawFrameBackground(ctx, inner, width, height) {
 
     ctx.strokeStyle = "#fecfef";
     ctx.lineWidth = 2;
-    roundRect(ctx, 1, 1, width - 2, height - 2, 6);
+    ctx.beginPath();
+    ctx.rect(1, 1, width - 2, height - 2);
     ctx.stroke();
   } else if (inner.classList.contains("frame-flower")) {
     // 樱花相纸
@@ -2384,7 +2442,8 @@ async function drawFrameBackground(ctx, inner, width, height) {
 
     ctx.strokeStyle = "#FFB6C1";
     ctx.lineWidth = 2;
-    roundRect(ctx, 1, 1, width - 2, height - 2, 6);
+    ctx.beginPath();
+    ctx.rect(1, 1, width - 2, height - 2);
     ctx.stroke();
   } else if (inner.classList.contains("frame-solid-color")) {
     // 纯色相纸
@@ -2395,10 +2454,11 @@ async function drawFrameBackground(ctx, inner, width, height) {
     ctx.fillStyle = solidColor;
     ctx.fillRect(0, 0, width, height);
 
-    // 添加淡淡的边框
+    // 添加淡淡的边框（无圆角）
     ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
     ctx.lineWidth = 2;
-    roundRect(ctx, 1, 1, width - 2, height - 2, 6);
+    ctx.beginPath();
+    ctx.rect(1, 1, width - 2, height - 2);
     ctx.stroke();
   } else {
     // 默认白色
@@ -2499,37 +2559,179 @@ async function savePhotoWall() {
   }
 
   try {
-    // 临时隐藏所有控制按钮、旋转手柄和缩放手柄
-    const allControls = photoWall.querySelectorAll(".polaroid-controls");
-    const allRotateHandles = photoWall.querySelectorAll(".rotate-handle");
-    const allResizeHandles = photoWall.querySelectorAll(".resize-handle");
-    allControls.forEach((control) => (control.style.display = "none"));
-    allRotateHandles.forEach((handle) => (handle.style.display = "none"));
-    allResizeHandles.forEach((handle) => (handle.style.display = "none"));
-
-    // 临时隐藏空状态
-    const emptyState = photoWall.querySelector(".empty-state");
-    if (emptyState) {
-      emptyState.style.display = "none";
+    // 创建导出用的canvas，大小为照片墙的实际尺寸
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = photoWall.offsetWidth * 2; // 2倍分辨率
+    exportCanvas.height = photoWall.offsetHeight * 2;
+    
+    const ctx = exportCanvas.getContext("2d");
+    ctx.scale(2, 2);
+    
+    // 绘制照片墙背景
+    drawPhotoWallBackground(ctx, photoWall.offsetWidth, photoWall.offsetHeight);
+    
+    // 获取背景类型并绘制装饰元素
+    let bgType = "starry"; // 默认星空背景
+    const photoWallClasses = photoWall.className;
+    if (photoWallClasses.includes("bg-cloud-wall")) {
+      bgType = "cloud";
+    } else if (photoWallClasses.includes("bg-sunset-wall")) {
+      bgType = "sunset";
+    } else if (photoWallClasses.includes("bg-aurora-wall")) {
+      bgType = "aurora";
+    } else if (photoWallClasses.includes("bg-beach-wall")) {
+      bgType = "beach";
+    } else if (photoWallClasses.includes("bg-forest-wall")) {
+      bgType = "forest";
+    } else if (photoWallClasses.includes("bg-cherry-wall")) {
+      bgType = "cherry";
+    } else if (photoWallClasses.includes("bg-meadow-wall")) {
+      bgType = "meadow";
     }
+    
+    // 绘制背景装饰元素
+    drawWallDecorations(ctx, photoWall.offsetWidth, photoWall.offsetHeight, bgType);
 
-    // 使用html2canvas截图
-    const canvas = await html2canvas(photoWall, {
-      backgroundColor: null,
-      scale: 2,
-      logging: false,
-      useCORS: true,
-    });
+    // 遍历所有照片，按照单个相纸保存的方式绘制每一张
+    for (const polaroid of photos) {
+      const img = polaroid.querySelector(".polaroid-img");
+      const inner = polaroid.querySelector(".polaroid-inner");
+      const captionInput = polaroid.querySelector(".caption-input");
+      const dateSpan = polaroid.querySelector(".caption-date");
+      
+      // 获取照片的位置和变换信息
+      const rect = polaroid.getBoundingClientRect();
+      const wallRect = photoWall.getBoundingClientRect();
+      const x = rect.left - wallRect.left;
+      const y = rect.top - wallRect.top;
+      
+      // 获取照片的缩放比例
+      const scale = parseFloat(polaroid.dataset.scale) || 1;
+      
+      // 计算实际尺寸
+      const totalWidth = POLAROID_WIDTH * scale;
+      const totalHeight = POLAROID_HEIGHT * scale;
+      const photoWidth = PHOTO_WIDTH * scale;
+      const photoHeight = PHOTO_HEIGHT * scale;
+      
+      // 计算内边距（按比例调整）
+      const paddingSide = FRAME_PADDING_SIDE * scale;
+      const paddingTop = FRAME_PADDING_TOP * scale;
+      const paddingBottom = FRAME_PADDING_BOTTOM * scale;
 
-    // 恢复所有控制按钮、旋转手柄和缩放手柄
-    allControls.forEach((control) => (control.style.display = ""));
-    allRotateHandles.forEach((handle) => (handle.style.display = ""));
-    allResizeHandles.forEach((handle) => (handle.style.display = ""));
+      // 保存当前上下文
+      ctx.save();
+      // 应用照片的位置和变换
+      ctx.translate(x, y);
+      
+      // 获取旋转角度
+      const rotation = parseFloat(polaroid.dataset.rotation) || 0;
+      if (rotation !== 0) {
+        ctx.translate(totalWidth / 2, totalHeight / 2);
+        ctx.rotate(rotation * Math.PI / 180);
+        ctx.translate(-totalWidth / 2, -totalHeight / 2);
+      }
+
+      // 绘制相纸背景（按比例缩放）
+      await drawFrameBackground(ctx, inner, totalWidth, totalHeight);
+
+      // 绘制照片
+      if (img && img.src) {
+        const photoImg = new Image();
+        photoImg.crossOrigin = "anonymous";
+
+        await new Promise((resolve, reject) => {
+          photoImg.onload = resolve;
+          photoImg.onerror = reject;
+          photoImg.src = img.src;
+        });
+
+        // 计算居中位置
+        const photoX = paddingSide;
+        const photoY = paddingTop;
+
+        // 保持原始照片的宽高比，就像在卡片中显示一样 (object-fit: cover)
+        const naturalWidth = photoImg.naturalWidth;
+        const naturalHeight = photoImg.naturalHeight;
+        const targetWidth = photoWidth;
+        const targetHeight = photoHeight;
+        
+        let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+        
+        // 计算如何裁剪图片以填充目标区域（保持object-fit: cover效果）
+        const scaleX = targetWidth / naturalWidth;
+        const scaleY = targetHeight / naturalHeight;
+        const imageScale = Math.max(scaleX, scaleY); // 取较大的缩放比例以填满目标区域
+        
+        drawWidth = naturalWidth * imageScale;
+        drawHeight = naturalHeight * imageScale;
+        
+        // 计算偏移量以居中显示
+        offsetX = (targetWidth - drawWidth) / 2;
+        offsetY = (targetHeight - drawHeight) / 2;
+
+        // 绘制照片（带圆角）
+        ctx.save();
+        roundRect(
+          ctx,
+          photoX,
+          photoY,
+          photoWidth,
+          photoHeight,
+          3 * scale
+        );
+        ctx.clip();
+        ctx.drawImage(
+          photoImg,
+          photoX + offsetX,
+          photoY + offsetY,
+          drawWidth,
+          drawHeight
+        );
+        ctx.restore();
+      }
+
+      // 绘制相纸装饰（按比例缩放）
+      await drawFrameDecorations(ctx, inner, totalWidth, totalHeight);
+
+      // 绘制用户输入的文字
+      if (captionInput && captionInput.value) {
+        // 获取文字样式
+        const fontFamily = captionInput.style.fontFamily || "Nunito, sans-serif";
+        const fontColor = captionInput.style.color || "#666666";
+        const fontStyle = captionInput.style.fontStyle || "normal";
+
+        ctx.font = `${fontStyle} 600 ${11 * scale}px ${fontFamily}`;
+        ctx.fillStyle = fontColor;
+        ctx.textAlign = "center";
+        // 调整文字位置，使其更靠近相纸底部但不过于靠下
+        ctx.fillText(captionInput.value, totalWidth / 2, totalHeight - 35 * scale);
+      }
+
+      // 绘制日期
+      const dateInput = polaroid.querySelector(".caption-date-input");
+      if (dateInput && dateInput.value) {
+        const fontFamily = dateInput.style.fontFamily || "Nunito, sans-serif";
+        const fontColor = dateInput.style.color || "#999999";
+        const fontStyle = dateInput.style.fontStyle || "normal";
+
+        ctx.font = `${fontStyle} ${9 * scale}px ${fontFamily}`;
+        ctx.fillStyle = fontColor;
+        ctx.globalAlpha = parseFloat(dateInput.style.opacity) || 0.7;
+        ctx.textAlign = "center";
+        // 调整日期位置，使其更靠近相纸底部但不过于靠下
+        ctx.fillText(dateInput.value, totalWidth / 2, totalHeight - 20 * scale);
+        ctx.globalAlpha = 1;
+      }
+
+      // 恢复上下文
+      ctx.restore();
+    }
 
     // 下载图片
     const link = document.createElement("a");
     link.download = `可爱照片墙-${Date.now()}.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.href = exportCanvas.toDataURL("image/png");
     link.click();
 
     console.log("✨ 照片墙保存成功！");
@@ -2744,6 +2946,28 @@ function applyCaptionStyle() {
   closeCaptionStyleModal();
 }
 
+/**
+ * 单独保存照片（不带相纸）
+ */
+async function savePhotoOnly(polaroid) {
+  console.log("💾 单独保存照片（不带相纸）:", polaroid.id);
+
+  try {
+    const img = polaroid.querySelector(".polaroid-img");
+
+    // 直接从图片的src创建下载链接
+    const link = document.createElement("a");
+    link.download = `照片-${Date.now()}.png`;
+    link.href = img.src;
+    link.click();
+
+    console.log("✨ 照片保存成功！");
+  } catch (error) {
+    console.error("❌ 保存照片失败:", error);
+    alert("保存照片失败，请重试 🥺\n错误信息: " + error.message);
+  }
+}
+
 // ==================== 错误处理 ====================
 window.addEventListener("error", (event) => {
   console.error("❌ 全局错误:", event.error);
@@ -2754,3 +2978,203 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 console.log("🎀 可爱拍立得脚本加载完成！✨");
+
+// ==================== 照片墙背景绘制函数 ====================
+/**
+ * 绘制照片墙背景
+ */
+function drawPhotoWallBackground(ctx, width, height) {
+  // 获取当前照片墙的背景类名
+  const photoWallClasses = photoWall.className;
+  
+  // 设置默认背景色
+  let bgColor = "#ffffff"; // 默认白色背景
+  
+  // 根据背景类名设置相应的渐变背景
+  if (photoWallClasses.includes("bg-starry-wall")) {
+    // 星空背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#1a1a2e");
+    gradient.addColorStop(0.5, "#16213e");
+    gradient.addColorStop(1, "#0f3460");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-cloud-wall")) {
+    // 云朵背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#89CFF0");
+    gradient.addColorStop(0.5, "#A7D8FF");
+    gradient.addColorStop(1, "#C9E4FF");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-sunset-wall")) {
+    // 晚霞橙背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#FF6B6B");
+    gradient.addColorStop(0.3, "#FF8E53");
+    gradient.addColorStop(0.6, "#FFA726");
+    gradient.addColorStop(1, "#FFD54F");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-aurora-wall")) {
+    // 极光紫背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#0D0D2B");
+    gradient.addColorStop(0.2, "#1A1A4E");
+    gradient.addColorStop(0.5, "#4A148C");
+    gradient.addColorStop(0.7, "#7B1FA2");
+    gradient.addColorStop(1, "#E040FB");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-beach-wall")) {
+    // 沙滩海背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#87CEEB");
+    gradient.addColorStop(0.3, "#87CEEB");
+    gradient.addColorStop(0.3, "#00BCD4");
+    gradient.addColorStop(0.5, "#00ACC1");
+    gradient.addColorStop(0.5, "#F5DEB3");
+    gradient.addColorStop(1, "#DEB887");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-forest-wall")) {
+    // 森林绿背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#1B5E20");
+    gradient.addColorStop(0.3, "#2E7D32");
+    gradient.addColorStop(0.5, "#388E3C");
+    gradient.addColorStop(0.7, "#43A047");
+    gradient.addColorStop(1, "#66BB6A");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-cherry-wall")) {
+    // 樱花季背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#FCE4EC");
+    gradient.addColorStop(0.3, "#F8BBD9");
+    gradient.addColorStop(0.6, "#F48FB1");
+    gradient.addColorStop(1, "#F06292");
+    bgColor = gradient;
+  } else if (photoWallClasses.includes("bg-meadow-wall")) {
+    // 草地背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#87CEEB");
+    gradient.addColorStop(0.4, "#87CEEB");
+    gradient.addColorStop(0.4, "#98FB98");
+    gradient.addColorStop(1, "#7CFC00");
+    bgColor = gradient;
+  }
+  
+  // 绘制背景
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, width, height);
+}
+
+/**
+ * 绘制照片墙装饰元素
+ */
+function drawWallDecorations(ctx, width, height, bgType) {
+  ctx.font = "20px Arial";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  
+  switch (bgType) {
+    case "starry":
+      // 绘制星星和月亮装饰
+      ctx.font = "20px Arial";
+      ctx.fillText("⭐", width * 0.15, height * 0.1);
+      ctx.font = "16px Arial";
+      ctx.fillText("✨", width * 0.8, height * 0.25);
+      ctx.font = "18px Arial";
+      ctx.fillText("🌟", width * 0.1, height * 0.3);
+      ctx.font = "14px Arial";
+      ctx.fillText("💫", width * 0.9, height * 0.5);
+      ctx.font = "35px Arial";
+      ctx.fillText("🌙", width * 0.92, height * 0.08);
+      break;
+    case "cloud":
+      // 绘制云朵和太阳装饰
+      ctx.font = "30px Arial";
+      ctx.fillText("☁️", width * 0.15, height * 0.1);
+      ctx.font = "25px Arial";
+      ctx.fillText("☁️", width * 0.8, height * 0.25);
+      ctx.font = "35px Arial";
+      ctx.fillText("☁️", width * 0.1, height * 0.3);
+      ctx.font = "20px Arial";
+      ctx.fillText("🦋", width * 0.9, height * 0.5);
+      ctx.font = "28px Arial";
+      ctx.fillText("🌤️", width * 0.9, height * 0.05);
+      break;
+    case "meadow":
+      // 绘制花朵和蝴蝶装饰
+      ctx.font = "24px Arial";
+      ctx.fillText("🌼", width * 0.15, height * 0.1);
+      ctx.font = "20px Arial";
+      ctx.fillText("🌸", width * 0.8, height * 0.25);
+      ctx.font = "22px Arial";
+      ctx.fillText("🌷", width * 0.1, height * 0.3);
+      ctx.font = "18px Arial";
+      ctx.fillText("🦋", width * 0.9, height * 0.5);
+      ctx.font = "26px Arial";
+      ctx.fillText("🌻", width * 0.95, height * 0.05);
+      break;
+    case "sunset":
+      // 绘制日出和鸟儿装饰
+      ctx.font = "24px Arial";
+      ctx.fillText("🌅", width * 0.15, height * 0.1);
+      ctx.font = "20px Arial";
+      ctx.fillText("🌇", width * 0.8, height * 0.25);
+      ctx.font = "18px Arial";
+      ctx.fillText("🐦", width * 0.1, height * 0.3);
+      ctx.font = "16px Arial";
+      ctx.fillText("🐦", width * 0.9, height * 0.5);
+      ctx.font = "35px Arial";
+      ctx.fillText("☀️", width * 0.9, height * 0.15);
+      break;
+    case "aurora":
+      // 绘制星空装饰
+      ctx.font = "20px Arial";
+      ctx.fillText("⭐", width * 0.15, height * 0.1);
+      ctx.font = "16px Arial";
+      ctx.fillText("✨", width * 0.8, height * 0.25);
+      ctx.font = "14px Arial";
+      ctx.fillText("💫", width * 0.1, height * 0.3);
+      ctx.font = "18px Arial";
+      ctx.fillText("🌟", width * 0.9, height * 0.5);
+      ctx.font = "30px Arial";
+      ctx.fillText("🌌", width * 0.92, height * 0.08);
+      break;
+    case "beach":
+      // 绘制海滩装饰
+      ctx.font = "24px Arial";
+      ctx.fillText("🐚", width * 0.15, height * 0.1);
+      ctx.font = "20px Arial";
+      ctx.fillText("🦀", width * 0.8, height * 0.25);
+      ctx.font = "22px Arial";
+      ctx.fillText("⛱️", width * 0.1, height * 0.3);
+      ctx.font = "18px Arial";
+      ctx.fillText("🐠", width * 0.9, height * 0.5);
+      ctx.font = "28px Arial";
+      ctx.fillText("☀️", width * 0.9, height * 0.05);
+      break;
+    case "forest":
+      // 绘制森林装饰
+      ctx.font = "28px Arial";
+      ctx.fillText("🌲", width * 0.15, height * 0.1);
+      ctx.font = "24px Arial";
+      ctx.fillText("🌳", width * 0.8, height * 0.25);
+      ctx.font = "20px Arial";
+      ctx.fillText("🍄", width * 0.1, height * 0.3);
+      ctx.font = "18px Arial";
+      ctx.fillText("🦊", width * 0.9, height * 0.5);
+      ctx.font = "22px Arial";
+      ctx.fillText("🦉", width * 0.92, height * 0.08);
+      break;
+    case "cherry":
+      // 绘制樱花装饰
+      ctx.font = "22px Arial";
+      ctx.fillText("🌸", width * 0.15, height * 0.1);
+      ctx.font = "18px Arial";
+      ctx.fillText("🌸", width * 0.8, height * 0.25);
+      ctx.font = "20px Arial";
+      ctx.fillText("🌸", width * 0.1, height * 0.3);
+      ctx.font = "16px Arial";
+      ctx.fillText("🎀", width * 0.9, height * 0.5);
+      ctx.font = "24px Arial";
+      ctx.fillText("💮", width * 0.92, height * 0.05);
+      break;
+  }
+}
